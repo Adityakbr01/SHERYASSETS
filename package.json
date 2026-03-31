@@ -5,7 +5,7 @@
     "apps/*",
     "packages/*"
   ],
-  "lint-staged": {
+"lint-staged": {
   "*.{ts,tsx,js,jsx}": [
     "bunx eslint --fix",
     "bunx prettier --write"
