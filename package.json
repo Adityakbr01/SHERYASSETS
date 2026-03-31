@@ -5,10 +5,12 @@
     "apps/*",
     "packages/*"
   ],
-"lint-staged": {
-  "*.{ts,tsx,js,jsx}": [
-    "bunx eslint --fix",
-    "bunx prettier --write"
+  "lint-staged": {
+  "apps/web/**/*.{ts,tsx,js,jsx}": [
+    "bun --cwd apps/web lint:fix"
+  ],
+  "apps/server/**/*.{ts,js}": [
+    "bun --cwd apps/server lint:fix"
   ]
 },
   "scripts": {
@@ -23,8 +25,12 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "concurrently": "^9.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.4.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0"
+    "lint-staged": "^16.4.0",
+    "typescript-eslint": "^8.58.0"
   }
 }
