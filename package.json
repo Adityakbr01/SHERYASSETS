@@ -1,0 +1,30 @@
+{
+  "name": "sheryassets",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "lint-staged": {
+  "*.{ts,tsx,js,jsx}": [
+    "bunx eslint --fix",
+    "bunx prettier --write"
+  ]
+},
+  "scripts": {
+    "dev": "concurrently \"bun run dev:web\" \"bun run dev:server\"",
+    "build": "concurrently \"bun run build:web\" \"bun run build:server\"",
+    "dev:web": "bun --cwd apps/web dev",
+    "dev:server": "bun --cwd apps/server dev",
+    "build:web": "bun --cwd apps/web build",
+    "build:server": "bun --cwd apps/server build",
+    "lint": "bun --cwd apps/web lint && bun --cwd apps/server lint",
+    "format": "bunx prettier --write .",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
+  }
+}

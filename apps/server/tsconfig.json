@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    // 🔥 Modern setup
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+
+    // ⚡ Bun support
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+
+    // 📁 Path alias
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
+    // 🧠 Strict type safety
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    // 🧹 Clean code
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // 🔑 Interop
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src"]
+}
