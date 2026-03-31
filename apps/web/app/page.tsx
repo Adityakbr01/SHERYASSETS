@@ -1,19 +1,5 @@
 import Image from 'next/image'
-import { useState } from 'react'
 export default function Home() {
-  const [first, setfirst] = useState({
-    name: 'John',
-  })
-  const data = {
-    name: 'John',
-
-    age: 30,
-
-    city: 'New York',
-  }
-  const handleClick = () => {
-    console.log('Button clicked!')
-  }
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
