@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-      "lint:fix": "bunx eslint . --fix"
+    "lint:fix": "bunx eslint . --fix"
   },
   "dependencies": {
     "next": "16.2.1",
