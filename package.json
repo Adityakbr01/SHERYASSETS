@@ -16,7 +16,7 @@
   ]
 },
   "scripts": {
-    "dev": "concurrently \"bun run dev:web\" \"bun run dev:server\"",
+ "dev": "concurrently -n WEB,SERVER -c blue,green --prefix \"[{name}]\" \"bun run dev:web\" \"bun run dev:server\"",
     "build": "concurrently \"bun run build:web\" \"bun run build:server\"",
     "dev:web": "bun --cwd apps/web dev",
     "dev:server": "bun --cwd apps/server dev",
