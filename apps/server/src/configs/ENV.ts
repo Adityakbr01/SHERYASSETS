@@ -1,31 +1,46 @@
 import dotenv from 'dotenv'
 import path from 'path'
-import zod from 'zod'
+import { z } from 'zod'
 
-// Load environment variables
-if (process.env.NODE_ENV === 'production') {
-  dotenv.config({
-    path: path.resolve(process.cwd(), '.env.production'),
-  })
-} else {
-  dotenv.config()
-}
+// 🔥 Load ENV (robust way)
+const envPath =
+  process.env.NODE_ENV === 'production'
+    ? path.resolve(process.cwd(), '.env.production')
+    : path.resolve(process.cwd(), '.env')
 
-// Define a schema for environment variables
-const envSchema = zod.object({
-  NODE_ENV: zod.enum(['development', 'production', 'test']).default('development'),
-  PORT: zod.string().default('5000'),
-  DB_URL: zod.string().default('mongodb://localhost:27017/sheryassets'),
-  JWT_SECRET: zod.string().default('your_jwt_secret'),
-  JWT_EXPIRES_IN: zod.string().default('1h'),
-  SALT_ROUNDS: zod.string().default('10'),
+dotenv.config({ path: envPath })
+
+// 🧠 Schema
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+
+  PORT: z.coerce.number().default(5000),
+
+  DB_URL: z
+    .string()
+    .min(1, 'DB_URL is required')
+    .default('mongodb://localhost:27017/sheryassets'),
+
+  JWT_SECRET: z
+    .string()
+    .min(6, 'JWT_SECRET must be at least 6 chars')
+    .default('your_jwt_secret'),
+
+  JWT_EXPIRES_IN: z.string().default('1h'),
+
+  SALT_ROUNDS: z.coerce.number().default(10),
+
+  CORS_ORIGIN: z.string().default('http://localhost:3000'),
 })
 
-// Validate and parse environment variables
-const ENV = envSchema.safeParse(process.env)
-if (!ENV.success) {
-  console.error('Invalid environment variables:', ENV.error.format())
+// 🔍 Validate
+const parsed = envSchema.safeParse(process.env)
+
+if (!parsed.success) {
+  console.error('❌ ENV VALIDATION ERROR\n')
+  console.error(JSON.stringify(parsed.error.format(), null, 2))
   process.exit(1)
 }
 
-export default ENV.data
+// ✅ Export typed env
+export const env = parsed.data
