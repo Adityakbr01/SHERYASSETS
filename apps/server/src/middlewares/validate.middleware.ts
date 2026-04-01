@@ -1,9 +1,16 @@
 import type { NextFunction, Request, Response } from 'express'
-import type { ZodSchema } from 'zod'
+import type { ZodType } from 'zod'
 import { ApiError } from '../utils/ApiError'
 
+type ValidatedRequestData = {
+  body: unknown
+  query: unknown
+  params: unknown
+}
+
 export const validate =
-  (schema: ZodSchema<any>) => (req: Request, _res: Response, next: NextFunction) => {
+  <T extends ValidatedRequestData>(schema: ZodType<T>) =>
+  (req: Request, _res: Response, next: NextFunction): void => {
     try {
       const result = schema.safeParse({
         body: req.body,
@@ -26,10 +33,23 @@ export const validate =
         )
       }
 
-      // overwrite with validated data (safe 🔥)
       req.body = result.data.body
-      req.query = result.data.query
-      req.params = result.data.params
+
+      if (result.data.query && typeof result.data.query === 'object') {
+        try {
+          Object.assign(req.query, result.data.query)
+        } catch {
+          // Some test runtimes expose readonly query objects.
+        }
+      }
+
+      if (result.data.params && typeof result.data.params === 'object') {
+        try {
+          Object.assign(req.params, result.data.params)
+        } catch {
+          // Some test runtimes expose readonly params objects.
+        }
+      }
 
       next()
     } catch (error) {

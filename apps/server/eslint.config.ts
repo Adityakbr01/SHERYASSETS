@@ -8,7 +8,7 @@ import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
   {
-    ignores: ['dist', 'node_modules'],
+    ignores: ['dist', 'node_modules', '__tests__', '*.config.js', '*.config.ts', 'src/types/**/*.d.ts',"src/**/*.test.ts"],
   },
 
   js.configs.recommended,

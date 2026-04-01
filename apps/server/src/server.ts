@@ -1,33 +1,51 @@
+﻿import { env } from '@/configs/ENV'
+import { connectDB, disconnectDB } from '@/lib/db'
 import { logger } from '@/utils/logger'
-import { env } from '@/configs/ENV'
+import { emailWorker } from '@/workers/email.worker'
+import app from './app'
 
-// 🚀 START SERVER SAFELY
+// START SERVER SAFELY
 const startServer = async () => {
   try {
-    logger.info('🚀 Starting server...')
+    logger.info('Starting server...')
 
-    const { default: app } = await import('./app')
+    await connectDB()
 
     const PORT = env.PORT
-
     const server = app.listen(PORT, () => {
       logger.info(`🚀 Server running on port ${PORT}`)
     })
 
-    // 🔥 graceful shutdown (VERY IMPORTANT)
-    const shutdown = (signal: string) => {
+    const shutdown = async (signal: string) => {
       logger.warn(`⚠️ ${signal} received. Shutting down...`)
 
-      server.close(() => {
-        logger.info('✅ Server closed gracefully')
-        process.exit(0)
+      server.close(async () => {
+        try {
+          await emailWorker.close()
+          await disconnectDB()
+          logger.info('âœ… Server closed gracefully')
+          process.exit(0)
+        } catch (error) {
+          logger.error('ðŸ’€ Error during shutdown', { error })
+          process.exit(1)
+        }
       })
     }
 
-    process.on('SIGINT', shutdown)
-    process.on('SIGTERM', shutdown)
-  } catch (error: any) {
-    console.error('💀 SERVER START FAILED', error.message, error.stack)
+    process.on('SIGINT', () => {
+      void shutdown('SIGINT')
+    })
+
+    process.on('SIGTERM', () => {
+      void shutdown('SIGTERM')
+    })
+  } catch (error: unknown) {
+    logger.error('SERVER START FAILED', {
+      error:
+        error instanceof Error
+          ? { message: error.message, stack: error.stack }
+          : { message: 'Unknown startup error', value: error },
+    })
   }
 }
 

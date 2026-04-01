@@ -13,6 +13,7 @@
 
     // 📁 Path alias
     "baseUrl": ".",
+    // "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["src/*"]
     },
@@ -29,6 +30,7 @@
     "noUnusedParameters": true,
 
     // 🔑 Interop
+    "types": ["node", "bun"],
     "esModuleInterop": true,
     "resolveJsonModule": true
   },

@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger'
 import dotenv from 'dotenv'
 import path from 'path'
 import { z } from 'zod'
@@ -26,19 +27,27 @@ const envSchema = z.object({
     .min(6, 'JWT_SECRET must be at least 6 chars')
     .default('your_jwt_secret'),
 
+  JWT_REFRESH_SECRET: z
+    .string()
+    .min(6, 'JWT_REFRESH_SECRET must be at least 6 chars')
+    .default('your_jwt_refresh_secret'),
+
   JWT_EXPIRES_IN: z.string().default('1h'),
 
-  SALT_ROUNDS: z.coerce.number().default(10),
+  JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
 
+  SALT_ROUNDS: z.coerce.number().default(10),
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
+  RESEND_API_KEY: z.string().default(''),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
 })
 
 // 🔍 Validate
 const parsed = envSchema.safeParse(process.env)
 
 if (!parsed.success) {
-  console.error('❌ ENV VALIDATION ERROR\n')
-  console.error(JSON.stringify(parsed.error.format(), null, 2))
+  logger.error('❌ ENV VALIDATION ERROR\n')
+  logger.error(JSON.stringify(parsed.error.format(), null, 2))
   process.exit(1)
 }
 

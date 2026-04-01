@@ -25,7 +25,7 @@ const originHandler: CorsOptions['origin'] = (origin, callback) => {
 
     // ❌ Block request
     return callback(new Error(`CORS blocked for origin: ${origin}`))
-  } catch (err) {
+  } catch {
     return callback(new Error('CORS validation error'))
   }
 }

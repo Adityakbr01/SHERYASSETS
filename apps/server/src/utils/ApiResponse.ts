@@ -3,7 +3,7 @@ import type { Response } from 'express'
 type ResponseOptions<T> = {
   message?: string
   data?: T
-  meta?: Record<string, any>
+  meta?: Record<string, unknown>
   statusCode?: number
 }
 
