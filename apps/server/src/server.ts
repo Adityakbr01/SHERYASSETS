@@ -1,7 +1,8 @@
-﻿import { env } from '@/configs/ENV'
+import { env } from '@/configs/ENV'
 import { connectDB, disconnectDB } from '@/lib/db'
 import { logger } from '@/utils/logger'
 import { emailWorker } from '@/workers/email.worker'
+import PlanService from '@/modules/Plan/plan.service'
 import app from './app'
 
 // START SERVER SAFELY
@@ -10,6 +11,9 @@ const startServer = async () => {
     logger.info('Starting server...')
 
     await connectDB()
+
+    // ─── Seed default plans into DB ──────────────────────────────────────
+    await PlanService.seedDefaults()
 
     const PORT = env.PORT
     const server = app.listen(PORT, () => {
@@ -23,10 +27,10 @@ const startServer = async () => {
         try {
           await emailWorker.close()
           await disconnectDB()
-          logger.info('âœ… Server closed gracefully')
+          logger.info('✅ Server closed gracefully')
           process.exit(0)
         } catch (error) {
-          logger.error('ðŸ’€ Error during shutdown', { error })
+          logger.error('💀 Error during shutdown', { error })
           process.exit(1)
         }
       })

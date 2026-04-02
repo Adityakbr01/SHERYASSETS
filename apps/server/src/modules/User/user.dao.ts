@@ -1,13 +1,11 @@
-import User from '@/modules/User/user.model'
-import type { IUser } from '@/modules/User/user.type'
+import User from './user.model'
+import type { IUser } from './user.type'
 
-type CreateUserInput = {
-  name: string
-  email: string
-  passwordHash: string
-}
+const UserDAO = {
+  async findById(userId: string): Promise<IUser | null> {
+    return User.findById(userId)
+  },
 
-const AuthDAO = {
   async findByEmail(email: string, includeSecrets = false): Promise<IUser | null> {
     const query = User.findOne({ email })
 
@@ -18,22 +16,18 @@ const AuthDAO = {
     return query
   },
 
-  async findById(userId: string): Promise<IUser | null> {
-    return User.findById(userId)
-  },
-
-  async findByIdWithSecrets(userId: string): Promise<IUser | null> {
-    return User.findById(userId).select('+passwordHash +refreshToken')
-  },
-
-  async findByIdAndRefreshToken(
+  async findByIdWithRefreshToken(
     userId: string,
     refreshToken: string,
   ): Promise<IUser | null> {
     return User.findOne({ _id: userId, refreshToken }).select('+refreshToken')
   },
 
-  async createUser(payload: CreateUserInput): Promise<IUser> {
+  async create(payload: {
+    name: string
+    email: string
+    passwordHash: string
+  }): Promise<IUser> {
     return User.create(payload)
   },
 
@@ -42,4 +36,4 @@ const AuthDAO = {
   },
 }
 
-export default AuthDAO
+export default UserDAO

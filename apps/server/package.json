@@ -15,7 +15,13 @@
     "format:check": "bunx prettier --check .",
     "lint": "bunx eslint .",
     "lint:fix": "bunx eslint . --fix",
-    "test": "bun test src/_test/*.test.ts"
+    "test": "bun test src/__tests__/*.test.ts --timeout 30000",
+    "test:auth": "bun test src/__tests__/auth.test.ts --timeout 30000",
+    "test:tenant": "bun test src/__tests__/tenant.test.ts --timeout 30000",
+    "test:membership": "bun test src/__tests__/membership.test.ts --timeout 30000",
+    "test:apikey": "bun test src/__tests__/apikey.test.ts --timeout 30000",
+    "test:plan": "bun test src/__tests__/plan.test.ts --timeout 30000",
+    "test:middleware": "bun test src/__tests__/middleware.test.ts --timeout 30000"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

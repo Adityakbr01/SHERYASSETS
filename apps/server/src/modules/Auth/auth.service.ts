@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto'
 import jwt from 'jsonwebtoken'
 
 import { logger } from '@/utils/logger'
@@ -9,12 +8,18 @@ import { env } from '@/configs/ENV'
 import { redisConnection } from '@/configs/redis'
 
 import AuthDAO from './auth.dao'
+import TenantDAO from '@/modules/Tenant/tenant.dao'
+import TenantService from '@/modules/Tenant/tenant.service'
+import MembershipDAO from '@/modules/Membership/membership.dao'
+import PlanService from '@/modules/Plan/plan.service'
+
+// ─── Types ─────────────────────────────────────────────────────────────────────
 
 type RegisterInput = {
   name: string
   email: string
   password: string
-  tenantId?: string
+  orgName?: string
   otp: string
 }
 
@@ -28,11 +33,27 @@ type LogoutInput = {
   refreshToken?: string
 }
 
+type TenantInfo = {
+  tenantId: string
+  name: string
+  slug: string
+  role: string
+  status: string
+}
+
 type AuthResult = {
   user: PublicUser
   accessToken: string
   refreshToken: string
+  tenants: TenantInfo[]
 }
+
+type SwitchTenantResult = {
+  accessToken: string
+  tenant: TenantInfo
+}
+
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
 const normalizeEmail = (email: string): string => email.trim().toLowerCase()
 
@@ -41,8 +62,6 @@ const toPublicUser = (user: IUser): PublicUser => ({
   name: user.name,
   email: user.email,
   isEmailVerified: user.isEmailVerified,
-  role: user.role,
-  tenantId: user.tenantId,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 })
@@ -69,6 +88,18 @@ const verifyRefreshToken = (refreshToken: string): string => {
   return decoded.userId
 }
 
+const getUserTenants = async (userId: string): Promise<TenantInfo[]> => {
+  const memberships = await MembershipDAO.findAllByUser(userId)
+
+  return memberships.map((m) => ({
+    tenantId: m.tenantId._id.toString(),
+    name: m.tenantId.name,
+    slug: m.tenantId.slug,
+    role: m.role,
+    status: m.tenantId.status,
+  }))
+}
+
 const getWelcomeEmailContent = (name: string): string => `
   <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
     <h2>Welcome to SheryAssets, ${name}!</h2>
@@ -76,6 +107,8 @@ const getWelcomeEmailContent = (name: string): string => `
     <p>Thanks,<br/>SheryAssets Team</p>
   </div>
 `
+
+// ─── Service ───────────────────────────────────────────────────────────────────
 
 const AuthService = {
   async sendRegisterOtp(email: string): Promise<void> {
@@ -100,12 +133,16 @@ const AuthService = {
       })
     }
 
-    // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    logger.info('Generated registration OTP', {
+      module: 'AUTH',
+      email: normalizedEmail,
+      otp,
+    })
 
     const otpKey = `otp:register:${normalizedEmail}`
-    await redisConnection.set(otpKey, otp, 'EX', 300) // 5 minutes TTL
-    await redisConnection.set(cooldownKey, '1', 'EX', 60) // 1 minute cooldown
+    await redisConnection.set(otpKey, otp, 'EX', 300)
+    await redisConnection.set(cooldownKey, '1', 'EX', 60)
 
     const htmlContent = `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
@@ -122,11 +159,18 @@ const AuthService = {
     })
   },
 
+  /**
+   * Register flow:
+   * 1. Create User (no tenantId, no role)
+   * 2. Create Tenant (assigned default plan)
+   * 3. Create Membership (userId + tenantId, role = owner)
+   * 4. Issue JWT with activeTenantId
+   */
   async register({
     name,
     email,
     password,
-    tenantId,
+    orgName,
     otp,
   }: RegisterInput): Promise<AuthResult> {
     const normalizedEmail = normalizeEmail(email)
@@ -140,6 +184,7 @@ const AuthService = {
       })
     }
 
+    // ─── Verify OTP ──────────────────────────────────────────────────────
     const otpKey = `otp:register:${normalizedEmail}`
     const storedOtp = await redisConnection.get(otpKey)
 
@@ -150,22 +195,46 @@ const AuthService = {
       })
     }
 
-    // Clear OTP after successful verification
     await redisConnection.del(otpKey)
 
+    // ─── 1. Create User ──────────────────────────────────────────────────
     const user = await AuthDAO.createUser({
       name: name.trim(),
       email: normalizedEmail,
       passwordHash: password,
-      tenantId: tenantId?.trim() || randomUUID(),
-      role: 'owner',
     })
 
-    const accessToken = user.generateAuthToken()
+    // ─── 2. Create Tenant ────────────────────────────────────────────────
+    const tenantName = orgName?.trim() || `${name.trim()}'s Organization`
+    const baseSlug = TenantService.generateSlug(tenantName)
+    const slug = await TenantService.ensureUniqueSlug(baseSlug)
+
+    const defaultPlan = await PlanService.getDefaultPlan()
+
+    const tenant = await TenantDAO.create({
+      name: tenantName,
+      slug,
+      ownerUserId: user._id,
+      planId: defaultPlan._id,
+      billingEmail: normalizedEmail,
+      status: 'active',
+    })
+
+    // ─── 3. Create Membership ────────────────────────────────────────────
+    await MembershipDAO.create({
+      userId: user._id,
+      tenantId: tenant._id,
+      role: 'owner',
+      status: 'active',
+    })
+
+    // ─── 4. Issue Tokens ─────────────────────────────────────────────────
+    const accessToken = user.generateAuthToken(tenant._id.toString())
     const refreshToken = user.generateRefreshToken()
 
     await user.save()
 
+    // ─── Send Welcome Email (non-blocking) ───────────────────────────────
     try {
       await sendEmail({
         to: user.email,
@@ -181,13 +250,23 @@ const AuthService = {
       })
     }
 
+    const tenants = await getUserTenants(user._id.toString())
+
     return {
       user: toPublicUser(user),
       accessToken,
       refreshToken,
+      tenants,
     }
   },
 
+  /**
+   * Login flow:
+   * 1. Validate credentials
+   * 2. Fetch user's tenants via Membership
+   * 3. Issue JWT WITHOUT activeTenantId (client must switch)
+   * 4. If user has exactly 1 tenant, auto-set it as active
+   */
   async login({ email, password }: LoginInput): Promise<AuthResult> {
     const normalizedEmail = normalizeEmail(email)
 
@@ -209,7 +288,12 @@ const AuthService = {
       })
     }
 
-    const accessToken = user.generateAuthToken()
+    const tenants = await getUserTenants(user._id.toString())
+
+    // Auto-select if user belongs to exactly one tenant
+    const activeTenantId = tenants.length === 1 ? tenants[0]?.tenantId : undefined
+
+    const accessToken = user.generateAuthToken(activeTenantId)
     const refreshToken = user.generateRefreshToken()
 
     await user.save()
@@ -218,6 +302,59 @@ const AuthService = {
       user: toPublicUser(user),
       accessToken,
       refreshToken,
+      tenants,
+    }
+  },
+
+  /**
+   * Switch active tenant — validates membership and issues a new JWT.
+   */
+  async switchTenant(userId: string, tenantId: string): Promise<SwitchTenantResult> {
+    const membership = await MembershipDAO.findByUserAndTenant(userId, tenantId)
+
+    if (!membership) {
+      throw new ApiError({
+        statusCode: 403,
+        message: 'You do not belong to this tenant',
+      })
+    }
+
+    const user = await AuthDAO.findById(userId)
+
+    if (!user) {
+      throw new ApiError({
+        statusCode: 404,
+        message: 'User not found',
+      })
+    }
+
+    const tenant = await TenantDAO.findById(tenantId)
+
+    if (!tenant) {
+      throw new ApiError({
+        statusCode: 404,
+        message: 'Tenant not found',
+      })
+    }
+
+    if (tenant.status !== 'active') {
+      throw new ApiError({
+        statusCode: 403,
+        message: 'Tenant is not active',
+      })
+    }
+
+    const accessToken = user.generateAuthToken(tenantId)
+
+    return {
+      accessToken,
+      tenant: {
+        tenantId: tenant._id.toString(),
+        name: tenant.name,
+        slug: tenant.slug,
+        role: membership.role,
+        status: tenant.status,
+      },
     }
   },
 
@@ -233,7 +370,10 @@ const AuthService = {
       })
     }
 
-    const nextAccessToken = user.generateAuthToken()
+    const tenants = await getUserTenants(user._id.toString())
+    const activeTenantId = tenants.length === 1 ? tenants[0]?.tenantId : undefined
+
+    const nextAccessToken = user.generateAuthToken(activeTenantId)
     const nextRefreshToken = user.generateRefreshToken()
 
     await user.save()
@@ -242,6 +382,7 @@ const AuthService = {
       user: toPublicUser(user),
       accessToken: nextAccessToken,
       refreshToken: nextRefreshToken,
+      tenants,
     }
   },
 
@@ -277,7 +418,7 @@ const AuthService = {
     await user.save()
   },
 
-  async getCurrentUser(userId: string): Promise<PublicUser> {
+  async getCurrentUser(userId: string): Promise<PublicUser & { tenants: TenantInfo[] }> {
     const user = await AuthDAO.findById(userId)
 
     if (!user) {
@@ -287,7 +428,12 @@ const AuthService = {
       })
     }
 
-    return toPublicUser(user)
+    const tenants = await getUserTenants(userId)
+
+    return {
+      ...toPublicUser(user),
+      tenants,
+    }
   },
 }
 

@@ -15,7 +15,7 @@ export const registerSchema = z.object({
     name: z.string().trim().min(2, 'Name must be at least 2 characters'),
     email: z.string().trim().email('Valid email is required'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
-    tenantId: z.string().trim().min(3).optional(),
+    orgName: z.string().trim().min(2).max(100).optional(),
     otp: z.string().trim().length(6, 'OTP must be 6 digits'),
   }),
   query: passthroughSchema,
@@ -26,6 +26,14 @@ export const loginSchema = z.object({
   body: z.object({
     email: z.string().trim().email('Valid email is required'),
     password: z.string().min(1, 'Password is required'),
+  }),
+  query: passthroughSchema,
+  params: passthroughSchema,
+})
+
+export const switchTenantSchema = z.object({
+  body: z.object({
+    tenantId: z.string().trim().min(1, 'tenantId is required'),
   }),
   query: passthroughSchema,
   params: passthroughSchema,

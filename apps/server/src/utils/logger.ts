@@ -27,9 +27,12 @@ const levelColorize = winston.format.colorize({ level: true })
 
 // 🎯 CLEAN FORMAT
 const devFormat = winston.format.printf(
-  ({ level, message, timestamp, service, env, requestId, module }) => `${timestamp} [${service}] [${env}] [${level}] ${
-      requestId ? `[req:${requestId}]` : ''
-    } ${module ? `[${module}]` : ''} ${message}`,
+  ({ level, message, timestamp, service, env, requestId, module, ...meta }) => {
+    const metaKeys = Object.keys(meta)
+    const serializedMeta = metaKeys.length > 0 ? ` ${JSON.stringify(meta)}` : ''
+
+    return `${timestamp} [${service}] [${env}] [${level}] ${requestId ? `[req:${requestId}]` : ''} ${module ? `[${module}]` : ''} ${message}${serializedMeta}`
+  },
 )
 
 export const logger = winston.createLogger({

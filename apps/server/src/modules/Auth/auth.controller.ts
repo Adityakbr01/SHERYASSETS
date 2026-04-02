@@ -1,27 +1,9 @@
-import {
-    accessTokenCookieOptions,
-    refreshTokenCookieOptions,
-} from '@/configs/cookieOptions'
-import { asyncHandler } from '@/middlewares/asyncHandler'
-import { ApiError } from '@/utils/ApiError'
-import { ApiResponse } from '@/utils/ApiResponse'
 import type { Request, Response } from 'express'
-
+import { asyncHandler } from '@/middlewares/asyncHandler'
+import { ApiResponse } from '@/utils/ApiResponse'
+import { ApiError } from '@/utils/ApiError'
+import { accessTokenCookieOptions, refreshTokenCookieOptions } from '@/configs/cookieOptions'
 import AuthService from './auth.service'
-
-const setAuthCookies = (
-  res: Response,
-  accessToken: string,
-  refreshToken: string,
-): void => {
-  res.cookie('accessToken', accessToken, accessTokenCookieOptions)
-  res.cookie('refreshToken', refreshToken, refreshTokenCookieOptions)
-}
-
-const clearAuthCookies = (res: Response): void => {
-  res.clearCookie('accessToken', accessTokenCookieOptions)
-  res.clearCookie('refreshToken', refreshTokenCookieOptions)
-}
 
 const AuthController = {
   sendRegisterOtp: asyncHandler(async (req: Request, res: Response) => {
@@ -29,103 +11,131 @@ const AuthController = {
 
     await AuthService.sendRegisterOtp(email)
 
-    return ApiResponse.success(res, {
-      message: 'OTP sent to your email successfully. It is valid for 5 minutes.',
+    ApiResponse.success(res, {
+      message: 'OTP sent to email if it is not already registered',
+      meta: { email },
     })
   }),
 
   register: asyncHandler(async (req: Request, res: Response) => {
-    const { user, accessToken, refreshToken } = await AuthService.register(req.body)
+    const { name, email, password, orgName, otp } = req.body
 
-    setAuthCookies(res, accessToken, refreshToken)
+    const result = await AuthService.register({ name, email, password, orgName, otp })
 
-    return ApiResponse.success(res, {
+    res.cookie('accessToken', result.accessToken, accessTokenCookieOptions)
+    res.cookie('refreshToken', result.refreshToken, refreshTokenCookieOptions)
+
+    ApiResponse.success(res, {
       statusCode: 201,
       message: 'Registration successful',
       data: {
-        user,
-        accessToken,
+        user: result.user,
+        tenants: result.tenants,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
       },
     })
   }),
 
   login: asyncHandler(async (req: Request, res: Response) => {
-    const { user, accessToken, refreshToken } = await AuthService.login(req.body)
+    const { email, password } = req.body
 
-    setAuthCookies(res, accessToken, refreshToken)
+    const result = await AuthService.login({ email, password })
 
-    return ApiResponse.success(res, {
+    res.cookie('accessToken', result.accessToken, accessTokenCookieOptions)
+    res.cookie('refreshToken', result.refreshToken, refreshTokenCookieOptions)
+
+    ApiResponse.success(res, {
       message: 'Login successful',
       data: {
-        user,
-        accessToken,
+        user: result.user,
+        tenants: result.tenants,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+      },
+    })
+  }),
+
+  switchTenant: asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.body
+
+    if (!tenantId || typeof tenantId !== 'string') {
+      throw new ApiError({ statusCode: 400, message: 'tenantId is required' })
+    }
+
+    if (!req.user) {
+      throw new ApiError({ statusCode: 401, message: 'Authentication required' })
+    }
+
+    const result = await AuthService.switchTenant(
+      req.user._id.toString(),
+      tenantId,
+    )
+
+    res.cookie('accessToken', result.accessToken, accessTokenCookieOptions)
+
+    ApiResponse.success(res, {
+      message: 'Tenant switched successfully',
+      data: {
+        accessToken: result.accessToken,
+        tenant: result.tenant,
       },
     })
   }),
 
   refresh: asyncHandler(async (req: Request, res: Response) => {
-    const tokenFromBody =
-      typeof req.body?.refreshToken === 'string' ? req.body.refreshToken : undefined
-    const tokenFromCookie =
-      typeof req.cookies?.refreshToken === 'string' ? req.cookies.refreshToken : undefined
-
-    const refreshToken = tokenFromBody ?? tokenFromCookie
+    const refreshToken =
+      req.body.refreshToken ||
+      (typeof req.cookies?.refreshToken === 'string' ? req.cookies.refreshToken : null)
 
     if (!refreshToken) {
-      throw new ApiError({
-        statusCode: 401,
-        message: 'Refresh token not found',
-      })
+      throw new ApiError({ statusCode: 400, message: 'Refresh token is required' })
     }
 
-    const {
-      user,
-      accessToken,
-      refreshToken: nextRefreshToken,
-    } = await AuthService.refresh(refreshToken)
+    const result = await AuthService.refresh(refreshToken)
 
-    setAuthCookies(res, accessToken, nextRefreshToken)
+    res.cookie('accessToken', result.accessToken, accessTokenCookieOptions)
+    res.cookie('refreshToken', result.refreshToken, refreshTokenCookieOptions)
 
-    return ApiResponse.success(res, {
+    ApiResponse.success(res, {
       message: 'Token refreshed successfully',
       data: {
-        user,
-        accessToken,
+        user: result.user,
+        tenants: result.tenants,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
       },
     })
   }),
 
   logout: asyncHandler(async (req: Request, res: Response) => {
-    const tokenFromBody =
-      typeof req.body?.refreshToken === 'string' ? req.body.refreshToken : undefined
-    const tokenFromCookie =
-      typeof req.cookies?.refreshToken === 'string' ? req.cookies.refreshToken : undefined
+    const refreshToken =
+      req.body.refreshToken ||
+      (typeof req.cookies?.refreshToken === 'string' ? req.cookies.refreshToken : null)
 
     await AuthService.logout({
-      userId: req.user?._id.toString(),
-      refreshToken: tokenFromBody ?? tokenFromCookie,
+      userId: req.user?._id?.toString(),
+      refreshToken,
     })
 
-    clearAuthCookies(res)
+    res.clearCookie('accessToken')
+    res.clearCookie('refreshToken')
 
-    return ApiResponse.success(res, {
-      message: 'Logout successful',
+    ApiResponse.success(res, {
+      message: 'Logged out successfully',
     })
   }),
 
   me: asyncHandler(async (req: Request, res: Response) => {
     if (!req.user) {
-      throw new ApiError({
-        statusCode: 401,
-        message: 'Unauthorized',
-      })
+      throw new ApiError({ statusCode: 401, message: 'Authentication required' })
     }
 
-    const user = await AuthService.getCurrentUser(req.user._id.toString())
+    const data = await AuthService.getCurrentUser(req.user._id.toString())
 
-    return ApiResponse.success(res, {
-      message: 'Current user fetched successfully',
-      data: { user },
+    ApiResponse.success(res, {
+      message: 'Current user fetched',
+      data,
     })
   }),
 }

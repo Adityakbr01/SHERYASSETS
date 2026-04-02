@@ -7,20 +7,24 @@ import { ApiError } from '@/utils/ApiError'
 
 import AuthDAO from './auth.dao'
 
-const extractAccessToken = (
-  authorizationHeader?: string,
-  accessTokenFromCookie?: string,
-): string | null => {
-  if (authorizationHeader?.startsWith('Bearer ')) {
-    const bearerToken = authorizationHeader.slice(7).trim()
+/**
+ * Lightweight auth guard used within the Auth module routes.
+ * For full tenant-aware auth, use the centralized middlewares in /middlewares/auth.middleware.ts
+ */
 
-    if (bearerToken.length > 0) {
-      return bearerToken
-    }
+const extractAccessToken = (req: Request): string | null => {
+  const authHeader = req.headers.authorization
+
+  if (authHeader?.startsWith('Bearer ')) {
+    const bearerToken = authHeader.slice(7).trim()
+
+    if (bearerToken.length > 0) return bearerToken
   }
 
-  if (accessTokenFromCookie && accessTokenFromCookie.length > 0) {
-    return accessTokenFromCookie
+  const cookieToken = req.cookies?.accessToken
+
+  if (typeof cookieToken === 'string' && cookieToken.length > 0) {
+    return cookieToken
   }
 
   return null
@@ -28,10 +32,7 @@ const extractAccessToken = (
 
 export const requireAuth = asyncHandler(
   async (req: Request, _res: Response, next: NextFunction) => {
-    const accessTokenFromCookie =
-      typeof req.cookies?.accessToken === 'string' ? req.cookies.accessToken : undefined
-
-    const token = extractAccessToken(req.headers.authorization, accessTokenFromCookie)
+    const token = extractAccessToken(req)
 
     if (!token) {
       throw new ApiError({
