@@ -185,6 +185,7 @@ const MembershipService = {
       tenantId,
       role,
       status: 'active',
+      invitedBy: decoded.inviterId,
     })
 
     // 4. Remove the invite cooldown from redis

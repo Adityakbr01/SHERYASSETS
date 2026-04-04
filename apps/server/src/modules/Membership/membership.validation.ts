@@ -13,8 +13,7 @@ export const inviteSchema = z.object({
 
 export const acceptInviteSchema = z.object({
   body: z.object({
-    token: z.string().trim().min(1, 'Token is required'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
+    token: z.string().trim().min(1, 'Token is required')
   }),
   query: passthroughSchema,
   params: passthroughSchema,
