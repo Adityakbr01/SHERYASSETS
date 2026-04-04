@@ -114,6 +114,7 @@ const ResetPassword = (name: string, url: string, jwtToken: string): string => `
     <p>Hi ${name},</p>
     <p>Your password reset link is: <strong>${url}/reset-password?token=${jwtToken}</strong></p>
     <p>This link is valid for 5 minutes.</p>
+    <p>Thanks,<br/>SheryAssets Team</p>
   </div>
 `
 

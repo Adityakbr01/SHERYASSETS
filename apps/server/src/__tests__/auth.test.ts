@@ -36,8 +36,6 @@ describe('Auth Endpoints', () => {
     await redisConnection.del(`cooldown:register:${emailLower}`)
 
     await mongoose.connection.db?.dropDatabase()
-    await mongoose.disconnect()
-    await redisConnection.quit()
   })
 
   // ─── Health Check ───────────────────────────────────────────────────────────
@@ -329,9 +327,9 @@ describe('Auth Endpoints', () => {
     const meRes = await request(app)
       .get('/api/v1/auth/me')
       .set('Authorization', `Bearer ${accessToken}`)
-      
+
     const userId = meRes.body.data._id
-    
+
     // Import jsonwebtoken dynamically just for the test
     const jwt = (await import('jsonwebtoken')).default
     const resetToken = jwt.sign({ userId }, env.JWT_SECRET, { expiresIn: '5m' })
@@ -351,7 +349,7 @@ describe('Auth Endpoints', () => {
 
     expect(res.status).toBe(200)
     expect(res.body.success).toBe(true)
-    
+
     accessToken = res.body.data.accessToken
     refreshToken = res.body.data.refreshToken
   })
