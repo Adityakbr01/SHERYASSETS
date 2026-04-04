@@ -52,7 +52,7 @@ export const requireAuth = asyncHandler(
       })
     }
 
-    if (typeof decoded !== 'object' || typeof decoded.userId !== 'string') {
+    if (!decoded || typeof decoded !== 'object' || !('userId' in decoded) || typeof decoded.userId !== 'string') {
       throw new ApiError({
         statusCode: 401,
         message: 'Unauthorized: invalid token payload',

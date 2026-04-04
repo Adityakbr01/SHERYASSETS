@@ -294,6 +294,68 @@ describe('Auth Endpoints', () => {
     expect(res.body.success).toBe(false)
   })
 
+  // ─── Forgot Password ────────────────────────────────────────────────────────
+
+  it('POST /auth/forgot-password — should send reset link for valid email', async () => {
+    const res = await request(app)
+      .post('/api/v1/auth/forgot-password')
+      .send({ email: testUser.email })
+
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true)
+  })
+
+  it('POST /auth/forgot-password — should reject for non-existent email', async () => {
+    const res = await request(app)
+      .post('/api/v1/auth/forgot-password')
+      .send({ email: 'nonexistent@example.com' })
+
+    expect(res.status).toBe(404)
+    expect(res.body.success).toBe(false)
+  })
+
+  // ─── Reset Password ─────────────────────────────────────────────────────────
+
+  it('POST /auth/reset-password — should reject with invalid token', async () => {
+    const res = await request(app)
+      .post('/api/v1/auth/reset-password')
+      .send({ token: 'invalid.token.string', password: 'NewPassword123!' })
+
+    expect(res.status).toBe(401)
+    expect(res.body.success).toBe(false)
+  })
+
+  it('POST /auth/reset-password — should allow password reset with valid token', async () => {
+    const meRes = await request(app)
+      .get('/api/v1/auth/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      
+    const userId = meRes.body.data._id
+    
+    // Import jsonwebtoken dynamically just for the test
+    const jwt = (await import('jsonwebtoken')).default
+    const resetToken = jwt.sign({ userId }, env.JWT_SECRET, { expiresIn: '5m' })
+
+    const res = await request(app)
+      .post('/api/v1/auth/reset-password')
+      .send({ token: resetToken, password: 'UpdatedPassword123!' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true)
+  })
+
+  it('POST /auth/login — should login with the newly updated password', async () => {
+    const res = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ email: testUser.email, password: 'UpdatedPassword123!' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true)
+    
+    accessToken = res.body.data.accessToken
+    refreshToken = res.body.data.refreshToken
+  })
+
   // ─── Logout ─────────────────────────────────────────────────────────────────
 
   it('POST /auth/logout — should logout successfully', async () => {
@@ -317,3 +379,5 @@ describe('Auth Endpoints', () => {
     expect(res.body.success).toBe(false)
   })
 })
+
+

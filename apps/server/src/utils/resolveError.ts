@@ -19,6 +19,6 @@ export const resolveError = (err: unknown) => {
   return {
     statusCode: (err as { statusCode: number }).statusCode || 500,
     message: (err as { message: string }).message || 'Something went wrong',
-    errors: [],
+    errors: (err as { errors: unknown[] }).errors || [],
   }
 }

@@ -27,11 +27,27 @@ const levelColorize = winston.format.colorize({ level: true })
 
 // 🎯 CLEAN FORMAT
 const devFormat = winston.format.printf(
-  ({ level, message, timestamp, service, env, requestId, module, ...meta }) => {
+  (info) => {
+    const { level, message, timestamp, service, env, requestId, module, stack, ...meta } = info
     const metaKeys = Object.keys(meta)
-    const serializedMeta = metaKeys.length > 0 ? ` ${JSON.stringify(meta)}` : ''
+    
+    // Check if meta contains an err object directly and extract it for better formatting
+    let serializedMeta = ''
+    if (metaKeys.length > 0) {
+      if (meta.err && meta.err instanceof Error) {
+        serializedMeta = `\n${meta.err.stack || meta.err.message}`
+        delete meta.err
+        if (Object.keys(meta).length > 0) {
+            serializedMeta += `\n> ${JSON.stringify(meta, null, 2)}`
+        }
+      } else {
+        serializedMeta = `\n> ${JSON.stringify(meta, null, 2)}`
+      }
+    }
 
-    return `${timestamp} [${service}] [${env}] [${level}] ${requestId ? `[req:${requestId}]` : ''} ${module ? `[${module}]` : ''} ${message}${serializedMeta}`
+    const formattedMessage = stack ? `${message}\n${stack}` : message
+
+    return `${timestamp} [${service}] [${env}] [${level}] ${requestId ? `[req:${requestId}]` : ''} ${module ? `[${module}]` : ''} ${formattedMessage}${serializedMeta}`
   },
 )
 
@@ -46,7 +62,12 @@ export const logger = winston.createLogger({
           winston.format.errors({ stack: true }),
           winston.format.json(),
         )
-      : winston.format.combine(dateFormat, levelColorize, devFormat),
+      : winston.format.combine(
+          winston.format.errors({ stack: true }),
+          dateFormat, 
+          levelColorize, 
+          devFormat
+        ),
 
   transports: [
     new winston.transports.Console(),

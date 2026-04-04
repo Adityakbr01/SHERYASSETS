@@ -24,7 +24,7 @@ const PlanDAO = {
     return Plan.findOneAndUpdate(
       { code: data.code },
       { $set: data },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: 'after' },
     ) as unknown as IPlan
   },
 }

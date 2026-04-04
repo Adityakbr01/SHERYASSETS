@@ -138,6 +138,27 @@ const AuthController = {
       data,
     })
   }),
+
+  forgotPassword: asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body
+
+    await AuthService.forgotPassword(email)
+
+    ApiResponse.success(res, {
+      message: 'Password reset link sent to your email',
+      meta: { email },
+    })
+  }),
+
+  resetPassword: asyncHandler(async (req: Request, res: Response) => {
+    const { token, password } = req.body
+
+    await AuthService.resetPassword(token, password)
+
+    ApiResponse.success(res, {
+      message: 'Password reset successful',
+    })
+  }),
 }
 
 export default AuthController

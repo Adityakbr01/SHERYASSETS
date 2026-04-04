@@ -40,6 +40,7 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
   RESEND_API_KEY: z.string().default(''),
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  FRONTEND_URL: z.string().default('http://localhost:3000'),
 })
 
 // 🔍 Validate

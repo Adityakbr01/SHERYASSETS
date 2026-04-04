@@ -78,14 +78,14 @@ const verifyRefreshToken = (refreshToken: string): string => {
     })
   }
 
-  if (typeof decoded !== 'object' || typeof decoded.userId !== 'string') {
+  if (!decoded || typeof decoded !== 'object' || !('userId' in decoded) || typeof decoded.userId !== 'string') {
     throw new ApiError({
       statusCode: 401,
       message: 'Invalid refresh token payload',
     })
   }
 
-  return decoded.userId
+  return decoded.userId as string
 }
 
 const getUserTenants = async (userId: string): Promise<TenantInfo[]> => {
@@ -105,6 +105,15 @@ const getWelcomeEmailContent = (name: string): string => `
     <h2>Welcome to SheryAssets, ${name}!</h2>
     <p>Your account is ready. You can now login and start using the dashboard.</p>
     <p>Thanks,<br/>SheryAssets Team</p>
+  </div>
+`
+
+const ResetPassword = (name: string, url: string, jwtToken: string): string => `
+  <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
+    <h2>SheryAssets Reset Password</h2>
+    <p>Hi ${name},</p>
+    <p>Your password reset link is: <strong>${url}/reset-password?token=${jwtToken}</strong></p>
+    <p>This link is valid for 5 minutes.</p>
   </div>
 `
 
@@ -134,11 +143,6 @@ const AuthService = {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
-    logger.info('Generated registration OTP', {
-      module: 'AUTH',
-      email: normalizedEmail,
-      otp,
-    })
 
     const otpKey = `otp:register:${normalizedEmail}`
     await redisConnection.set(otpKey, otp, 'EX', 300)
@@ -434,6 +438,54 @@ const AuthService = {
       ...toPublicUser(user),
       tenants,
     }
+  },
+
+  async forgotPassword(email: string): Promise<void> {
+    const normalizedEmail = normalizeEmail(email)
+
+    const user = await AuthDAO.findByEmail(normalizedEmail)
+
+    if (!user) {
+      throw new ApiError({
+        statusCode: 404,
+        message: 'User not found',
+      })
+    }
+
+    const jwtToken = jwt.sign({ userId: user._id.toString() }, env.JWT_SECRET, {
+      expiresIn: '5m',
+    })
+
+    const htmlContent = ResetPassword(user.name, env.FRONTEND_URL, jwtToken)
+
+    await sendEmail({
+      to: normalizedEmail,
+      subject: 'Reset Password',
+      html: htmlContent,
+    })
+  },
+
+  async resetPassword(token: string, password: string): Promise<void> {
+    const decodedToken = jwt.verify(token, env.JWT_SECRET)
+
+    if (typeof decodedToken === 'string') {
+      throw new ApiError({
+        statusCode: 401,
+        message: 'Invalid token payload',
+      })
+    }
+
+    const user = await AuthDAO.findById(decodedToken.userId)
+
+    if (!user) {
+      throw new ApiError({
+        statusCode: 404,
+        message: 'User not found',
+      })
+    }
+
+    user.passwordHash = password
+    await user.save()
   },
 }
 

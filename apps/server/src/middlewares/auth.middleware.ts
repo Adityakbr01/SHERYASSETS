@@ -1,13 +1,13 @@
-import jwt from 'jsonwebtoken'
 import type { NextFunction, Request, Response } from 'express'
+import jwt from 'jsonwebtoken'
 
 import { env } from '@/configs/ENV'
 import { asyncHandler } from '@/middlewares/asyncHandler'
-import { ApiError } from '@/utils/ApiError'
-import { Tenant } from '@/modules/Tenant/tenant.model'
 import { Membership } from '@/modules/Membership/membership.model'
-import User from '@/modules/User/user.model'
 import type { MembershipRole } from '@/modules/Membership/membership.type'
+import { Tenant } from '@/modules/Tenant/tenant.model'
+import User from '@/modules/User/user.model'
+import { ApiError } from '@/utils/ApiError'
 
 // ─── JWT Payload ───────────────────────────────────────────────────────────────
 
@@ -52,10 +52,10 @@ export const authenticateUser = asyncHandler(
       })
     }
 
-    let decoded: JwtPayload
+    let decoded: string | jwt.JwtPayload;
 
     try {
-      decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload
+      decoded = jwt.verify(token, env.JWT_SECRET)
     } catch {
       throw new ApiError({
         statusCode: 401,
@@ -63,14 +63,23 @@ export const authenticateUser = asyncHandler(
       })
     }
 
-    if (!decoded.userId) {
+    if (!decoded || typeof decoded !== 'object' || !('userId' in decoded)) {
       throw new ApiError({
         statusCode: 401,
         message: 'Unauthorized: invalid token payload',
       })
     }
 
-    const user = await User.findById(decoded.userId).select('-passwordHash')
+    const payload = decoded as unknown as JwtPayload;
+
+    if (!payload.userId) {
+      throw new ApiError({
+        statusCode: 401,
+        message: 'Unauthorized: invalid token payload',
+      })
+    }
+
+    const user = await User.findById(payload.userId).select('-passwordHash')
 
     if (!user) {
       throw new ApiError({
@@ -82,8 +91,8 @@ export const authenticateUser = asyncHandler(
     req.user = user
 
     // Mount activeTenantId from JWT to header for downstream resolveTenant
-    if (decoded.activeTenantId) {
-      req.headers['x-tenant-id'] = decoded.activeTenantId
+    if (payload.activeTenantId) {
+      req.headers['x-tenant-id'] = payload.activeTenantId
     }
 
     next()

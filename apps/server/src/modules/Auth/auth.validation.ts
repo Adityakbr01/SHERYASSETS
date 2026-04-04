@@ -58,3 +58,20 @@ export const logoutSchema = z.object({
   query: passthroughSchema,
   params: passthroughSchema,
 })
+
+export const forgotPasswordSchema = z.object({
+  body: z.object({
+    email: z.string().trim().email('Valid email is required'),
+  }),
+  query: passthroughSchema,
+  params: passthroughSchema,
+})
+
+export const resetPasswordSchema = z.object({
+  body: z.object({
+    token: z.string().trim().min(1, 'Token is required'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+  }),
+  query: passthroughSchema,
+  params: passthroughSchema,
+})

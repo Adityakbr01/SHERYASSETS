@@ -19,6 +19,7 @@ export class ApiError extends Error {
     isOperational?: boolean;
   }) {
     super(message);
+    this.name = 'ApiError';
 
     this.statusCode = statusCode;
     this.success = false;
