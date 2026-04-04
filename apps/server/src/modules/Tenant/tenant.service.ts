@@ -1,6 +1,10 @@
 import { ApiError } from '@/utils/ApiError'
 import TenantDAO from './tenant.dao'
+import MembershipDAO from '@/modules/Membership/membership.dao'
 import type { ITenant } from './tenant.type'
+import type { MembershipRole } from '@/modules/Membership/membership.type'
+
+export type TenantWithRole = ITenant & { role: MembershipRole }
 
 const TenantService = {
   async getById(tenantId: string): Promise<ITenant> {
@@ -25,6 +29,22 @@ const TenantService = {
 
   async getByOwner(ownerUserId: string): Promise<ITenant[]> {
     return TenantDAO.findByOwner(ownerUserId)
+  },
+
+  async getAllUserTenants(userId: string): Promise<TenantWithRole[]> {
+    const memberships = await MembershipDAO.findAllByUser(userId)
+
+    const results = await Promise.all(
+      memberships.map(async (m) => {
+        const tenant = await TenantDAO.findById(m.tenantId._id.toString())
+
+        if (!tenant) return null
+
+        return { ...tenant.toObject(), role: m.role } as TenantWithRole
+      }),
+    )
+
+    return results.filter((t): t is TenantWithRole => t !== null)
   },
 
   generateSlug(name: string): string {

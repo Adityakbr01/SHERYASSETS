@@ -2,6 +2,7 @@ import { env } from '@/configs/ENV'
 import { connectDB, disconnectDB } from '@/lib/db'
 import { logger } from '@/utils/logger'
 import { emailWorker } from '@/workers/email.worker'
+import { membershipWorker } from '@/workers/membership.worker'
 import PlanService from '@/modules/Plan/plan.service'
 import app from './app'
 
@@ -26,6 +27,7 @@ const startServer = async () => {
       server.close(async () => {
         try {
           await emailWorker.close()
+          await membershipWorker.close()
           await disconnectDB()
           logger.info('✅ Server closed gracefully')
           process.exit(0)
