@@ -8,7 +8,7 @@ import { logger } from '@/utils/logger'
 const BillingController = {
   subscribe: asyncHandler(async (req: Request, res: Response) => {
     const user = req.user as unknown as { _id: string }
-    const tenant = (req as any).tenant
+    const tenant = (req as unknown as { tenant: { _id: string } }).tenant
     if (!user || !tenant) return res.status(401).json({ message: 'Unauthorized or missing tenant' })
 
     const tenantId = tenant._id.toString()
