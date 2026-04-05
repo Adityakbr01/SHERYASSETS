@@ -12,71 +12,71 @@ const DEFAULT_PLANS: Array<{
   limits: IPlan['limits']
   features: IPlan['features']
 }> = [
-  {
-    code: 'basic',
-    name: 'Basic',
-    priceMonthly: 0,
-    limits: {
-      maxImages: 1000,
-      maxBandwidthGb: 5,
-      maxApiKeys: 2,
-      maxTransformations: 5000,
+    {
+      code: 'basic',
+      name: 'Basic',
+      priceMonthly: 0,
+      limits: {
+        maxImages: 1000,
+        maxBandwidthGb: 5,
+        maxApiKeys: 2,
+        maxTransformations: 5000,
+      },
+      features: {
+        priorityProcessing: false,
+        customDomain: false,
+        eagerVariants: false,
+      },
     },
-    features: {
-      priorityProcessing: false,
-      customDomain: false,
-      eagerVariants: false,
+    {
+      code: 'pro',
+      name: 'Pro',
+      priceMonthly: 29,
+      limits: {
+        maxImages: 50000,
+        maxBandwidthGb: 100,
+        maxApiKeys: 10,
+        maxTransformations: 100000,
+      },
+      features: {
+        priorityProcessing: true,
+        customDomain: true,
+        eagerVariants: false,
+      },
     },
-  },
-  {
-    code: 'pro',
-    name: 'Pro',
-    priceMonthly: 29,
-    limits: {
-      maxImages: 50000,
-      maxBandwidthGb: 100,
-      maxApiKeys: 10,
-      maxTransformations: 100000,
+    {
+      code: 'payg',
+      name: 'Pay As You Go',
+      priceMonthly: 0,
+      limits: {
+        maxImages: -1, // unlimited (-1 = no cap, billed by usage)
+        maxBandwidthGb: -1,
+        maxApiKeys: 20,
+        maxTransformations: -1,
+      },
+      features: {
+        priorityProcessing: true,
+        customDomain: true,
+        eagerVariants: true,
+      },
     },
-    features: {
-      priorityProcessing: true,
-      customDomain: true,
-      eagerVariants: false,
+    {
+      code: 'enterprise',
+      name: 'Enterprise',
+      priceMonthly: 299,
+      limits: {
+        maxImages: -1,
+        maxBandwidthGb: -1,
+        maxApiKeys: 100,
+        maxTransformations: -1,
+      },
+      features: {
+        priorityProcessing: true,
+        customDomain: true,
+        eagerVariants: true,
+      },
     },
-  },
-  {
-    code: 'payg',
-    name: 'Pay As You Go',
-    priceMonthly: 0,
-    limits: {
-      maxImages: -1, // unlimited (-1 = no cap, billed by usage)
-      maxBandwidthGb: -1,
-      maxApiKeys: 20,
-      maxTransformations: -1,
-    },
-    features: {
-      priorityProcessing: true,
-      customDomain: true,
-      eagerVariants: true,
-    },
-  },
-  {
-    code: 'enterprise',
-    name: 'Enterprise',
-    priceMonthly: 299,
-    limits: {
-      maxImages: -1,
-      maxBandwidthGb: -1,
-      maxApiKeys: 100,
-      maxTransformations: -1,
-    },
-    features: {
-      priorityProcessing: true,
-      customDomain: true,
-      eagerVariants: true,
-    },
-  },
-]
+  ]
 
 const PlanService = {
   async getAll(): Promise<IPlan[]> {
@@ -121,6 +121,29 @@ const PlanService = {
   async getDefaultPlan(): Promise<IPlan> {
     return this.getByCode('basic')
   },
+
+
+  async create(planData: Partial<IPlan>): Promise<IPlan> {
+    const plan = await PlanDAO.create(planData)
+    return plan
+  },
+
+  async update(planId: string, planData: Partial<IPlan>): Promise<IPlan> {
+    const plan = await PlanDAO.update(planId, planData)
+    if (!plan) {
+      throw new ApiError({ statusCode: 404, message: 'Plan not found' })
+    }
+    return plan
+  },
+
+  async delete(planId: string): Promise<IPlan> {
+    const plan = await PlanDAO.delete(planId)
+    if (!plan) {
+      throw new ApiError({ statusCode: 404, message: 'Plan not found' })
+    }
+    return plan
+  },
+
 }
 
 export default PlanService

@@ -27,6 +27,18 @@ const PlanDAO = {
       { upsert: true, returnDocument: 'after' },
     ) as unknown as IPlan
   },
+
+  async create(planData: Partial<IPlan>): Promise<IPlan> {
+    return Plan.create(planData)
+  },
+
+  async update(planId: string, planData: Partial<IPlan>): Promise<IPlan> {
+    return Plan.findByIdAndUpdate(planId, planData, { returnDocument: 'after' }) as unknown as IPlan
+  },
+
+  async delete(planId: string): Promise<IPlan> {
+    return Plan.findByIdAndDelete(planId) as unknown as IPlan
+  },
 }
 
 export default PlanDAO

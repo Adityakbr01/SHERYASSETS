@@ -3,7 +3,7 @@ import type { Document, Types } from 'mongoose'
 // ─── Enums ─────────────────────────────────────────────────────────────────────
 
 export const PLAN_CODES = ['basic', 'pro', 'payg', 'enterprise'] as const
-export type PlanCode = (typeof PLAN_CODES)[number]
+export type PlanCode = string
 
 // ─── Sub-interfaces ────────────────────────────────────────────────────────────
 

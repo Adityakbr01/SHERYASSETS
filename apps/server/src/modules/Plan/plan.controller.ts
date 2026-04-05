@@ -12,6 +12,33 @@ const PlanController = {
       data: plans,
     })
   }),
+
+  createPlan: asyncHandler(async (req: Request, res: Response) => {
+    const plan = await PlanService.create(req.body)
+
+    ApiResponse.success(res, {
+      message: 'Plan created successfully',
+      data: plan,
+    })
+  }),
+
+  updatePlan: asyncHandler(async (req: Request, res: Response) => {
+    const plan = await PlanService.update(req.params.id as string, req.body)
+
+    ApiResponse.success(res, {
+      message: 'Plan updated successfully',
+      data: plan,
+    })
+  }),
+
+  deletePlan: asyncHandler(async (req: Request, res: Response) => {
+    const plan = await PlanService.delete(req.params.id as string)
+
+    ApiResponse.success(res, {
+      message: 'Plan deleted successfully',
+      data: plan,
+    })
+  }),
 }
 
 export default PlanController

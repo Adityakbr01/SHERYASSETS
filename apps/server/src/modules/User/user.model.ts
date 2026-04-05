@@ -30,6 +30,11 @@ const userSchema: Schema<IUser> = new Schema(
       type: Boolean,
       default: false,
     },
+    role: {
+      type: String,
+      enum: ['admin', 'user'],
+      default: 'user',
+    },
     refreshToken: {
       type: String,
       default: null,
@@ -62,6 +67,7 @@ userSchema.methods.generateAuthToken = function (activeTenantId?: string): strin
     {
       userId: this._id.toString(),
       email: this.email,
+      role: this.role,
       ...(activeTenantId && { activeTenantId }),
     },
     env.JWT_SECRET,

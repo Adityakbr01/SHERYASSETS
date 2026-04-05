@@ -1,11 +1,10 @@
 import mongoose, { Schema } from 'mongoose'
-import { type IPlan, PLAN_CODES } from './plan.type'
+import { type IPlan } from './plan.type'
 
 const planSchema: Schema<IPlan> = new Schema(
   {
     code: {
       type: String,
-      enum: PLAN_CODES,
       required: true,
       unique: true,
     },

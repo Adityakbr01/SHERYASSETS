@@ -154,21 +154,44 @@ export const resolveTenant = asyncHandler(
 // Role comes from Membership — NOT from User.
 
 export const requireRole = (roles: MembershipRole[]) => asyncHandler(
-    async (req: Request, _res: Response, next: NextFunction) => {
-      if (!req.membership) {
-        throw new ApiError({
-          statusCode: 403,
-          message: 'Tenant context required for role validation',
-        })
-      }
+  async (req: Request, _res: Response, next: NextFunction) => {
+    if (!req.membership) {
+      throw new ApiError({
+        statusCode: 403,
+        message: 'Tenant context required for role validation',
+      })
+    }
 
-      if (!roles.includes(req.membership.role)) {
-        throw new ApiError({
-          statusCode: 403,
-          message: `Forbidden: requires one of roles [${roles.join(', ')}]`,
-        })
-      }
+    if (!roles.includes(req.membership.role)) {
+      throw new ApiError({
+        statusCode: 403,
+        message: `Forbidden: requires one of roles [${roles.join(', ')}]`,
+      })
+    }
 
-      next()
-    },
-  )
+    next()
+  },
+)
+
+// ─── 4. System Role Guard ──────────────────────────────────────────────────────
+// Role comes from User (global system roles like 'admin' or 'user').
+
+export const requireSystemRole = (roles: string[]) => asyncHandler(
+  async (req: Request, _res: Response, next: NextFunction) => {
+    if (!req.user) {
+      throw new ApiError({
+        statusCode: 401,
+        message: 'Authentication required for system role validation',
+      })
+    }
+
+    if (!roles.includes(req.user.role)) {
+      throw new ApiError({
+        statusCode: 403,
+        message: `Forbidden: requires one of system roles [${roles.join(', ')}]`,
+      })
+    }
+
+    next()
+  },
+)

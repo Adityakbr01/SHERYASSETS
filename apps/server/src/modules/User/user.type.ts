@@ -8,6 +8,7 @@ export interface USER {
   email: string
   passwordHash: string
   isEmailVerified: boolean
+  role: 'admin' | 'user'
   refreshToken?: string | null
   createdAt: Date
   updatedAt: Date
