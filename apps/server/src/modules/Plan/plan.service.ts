@@ -1,6 +1,7 @@
 import { ApiError } from '@/utils/ApiError'
 import { logger } from '@/utils/logger'
 import PlanDAO from './plan.dao'
+import PlanCache from './plan.cache'
 import type { IPlan, PlanCode } from './plan.type'
 
 // ─── Default Plan Definitions (seeded into DB, not hardcoded in logic) ─────
@@ -79,28 +80,42 @@ const DEFAULT_PLANS: Array<{
   ]
 
 const PlanService = {
-  async getAll(): Promise<IPlan[]> {
-    return PlanDAO.findAll()
+  async getAll(): Promise<{ data: IPlan[]; isCache: boolean }> {
+    const cached = await PlanCache.getAllPlans()
+    if (cached) return { data: cached, isCache: true }
+
+    const plans = await PlanDAO.findAll()
+    await PlanCache.setAllPlans(plans)
+
+    return { data: plans, isCache: false }
   },
 
-  async getByCode(code: PlanCode): Promise<IPlan> {
+  async getByCode(code: PlanCode): Promise<{ data: IPlan; isCache: boolean }> {
+    const cached = await PlanCache.getPlanByCode(code)
+    if (cached) return { data: cached, isCache: true }
+
     const plan = await PlanDAO.findByCode(code)
 
     if (!plan) {
       throw new ApiError({ statusCode: 404, message: `Plan '${code}' not found` })
     }
 
-    return plan
+    await PlanCache.setPlan(plan)
+    return { data: plan, isCache: false }
   },
 
-  async getById(planId: string): Promise<IPlan> {
+  async getById(planId: string): Promise<{ data: IPlan; isCache: boolean }> {
+    const cached = await PlanCache.getPlanById(planId)
+    if (cached) return { data: cached, isCache: true }
+
     const plan = await PlanDAO.findById(planId)
 
     if (!plan) {
       throw new ApiError({ statusCode: 404, message: 'Plan not found' })
     }
 
-    return plan
+    await PlanCache.setPlan(plan)
+    return { data: plan, isCache: false }
   },
 
   /**
@@ -112,6 +127,7 @@ const PlanService = {
       await PlanDAO.upsertByCode(planDef)
     }
 
+    await PlanCache.invalidateAll()
     logger.info(`✅ Seeded ${DEFAULT_PLANS.length} default plans`)
   },
 
@@ -119,12 +135,14 @@ const PlanService = {
    * Returns the default plan assigned to new tenants on registration.
    */
   async getDefaultPlan(): Promise<IPlan> {
-    return this.getByCode('basic')
+    const { data } = await this.getByCode('basic')
+    return data
   },
 
 
   async create(planData: Partial<IPlan>): Promise<IPlan> {
     const plan = await PlanDAO.create(planData)
+    await PlanCache.invalidateAll()
     return plan
   },
 
@@ -133,6 +151,7 @@ const PlanService = {
     if (!plan) {
       throw new ApiError({ statusCode: 404, message: 'Plan not found' })
     }
+    await PlanCache.invalidateAll()
     return plan
   },
 
@@ -141,6 +160,7 @@ const PlanService = {
     if (!plan) {
       throw new ApiError({ statusCode: 404, message: 'Plan not found' })
     }
+    await PlanCache.invalidateAll()
     return plan
   },
 

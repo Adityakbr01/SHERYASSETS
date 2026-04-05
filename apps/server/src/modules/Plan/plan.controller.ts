@@ -5,11 +5,12 @@ import PlanService from './plan.service'
 
 const PlanController = {
   getAllPlans: asyncHandler(async (_req: Request, res: Response) => {
-    const plans = await PlanService.getAll()
+    const { data, isCache } = await PlanService.getAll()
 
     ApiResponse.success(res, {
       message: 'Plans fetched successfully',
-      data: plans,
+      data,
+      isCache,
     })
   }),
 

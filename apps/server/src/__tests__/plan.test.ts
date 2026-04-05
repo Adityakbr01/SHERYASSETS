@@ -272,4 +272,36 @@ describe('Plan Endpoints', () => {
 
     expect(res.status).toBe(403)
   })
+
+  // ─── Caching ────────────────────────────────────────────────────────────────
+
+  it('GET /plans — cache hit/miss logic', async () => {
+    // 1. Initial request - Cache MISS
+    const res1 = await request(app).get('/api/v1/plans')
+    expect(res1.status).toBe(200)
+    expect(res1.body.meta.isCache).toBe(false)
+
+    // 2. Subsequent request - Cache HIT
+    const res2 = await request(app).get('/api/v1/plans')
+    expect(res2.status).toBe(200)
+    expect(res2.body.meta.isCache).toBe(true)
+
+    // 3. Mutation - Invalidate cache
+    const newPlan = {
+      code: 'another_plan',
+      name: 'Another Plan',
+      priceMonthly: 10,
+      limits: { maxImages: 10, maxBandwidthGb: 1, maxApiKeys: 1, maxTransformations: 1 },
+      features: { priorityProcessing: false, customDomain: false, eagerVariants: false },
+    }
+    await request(app)
+      .post('/api/v1/plans')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(newPlan)
+
+    // 4. Request after mutation - Cache MISS
+    const res3 = await request(app).get('/api/v1/plans')
+    expect(res3.status).toBe(200)
+    expect(res3.body.meta.isCache).toBe(false)
+  })
 })

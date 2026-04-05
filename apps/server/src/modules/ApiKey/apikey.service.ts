@@ -29,10 +29,10 @@ const ApiKeyService = {
     const plan = await PlanService.getById(tenant.planId.toString())
     const activeCount = await ApiKeyDAO.countActiveByTenant(tenant._id.toString())
 
-    if (plan.limits.maxApiKeys !== -1 && activeCount >= plan.limits.maxApiKeys) {
+    if (plan.data.limits.maxApiKeys !== -1 && activeCount >= plan.data.limits.maxApiKeys) {
       throw new ApiError({
         statusCode: 403,
-        message: `API key limit reached (${plan.limits.maxApiKeys} keys for ${plan.name} plan)`,
+        message: `API key limit reached (${plan.data.limits.maxApiKeys} keys for ${plan.data.name} plan)`,
         errorCode: 'PLAN_LIMIT_API_KEYS',
       })
     }
