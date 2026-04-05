@@ -3,7 +3,7 @@ import { asyncHandler } from '@/middlewares/asyncHandler'
 import { ApiResponse } from '@/utils/ApiResponse'
 import BillingService from './billing.service'
 import { verifyRazorpayWebhook } from '@/services/razorpay.service'
-import { logger } from '@/utils/logger'
+import { ApiError } from '@/utils/ApiError'
 
 const BillingController = {
   subscribe: asyncHandler(async (req: Request, res: Response) => {
@@ -13,13 +13,27 @@ const BillingController = {
 
     const tenantId = tenant._id.toString()
     const userId = user._id as string
-    const planId = req.params.planId as string
+    const planId = req.params.planId as string || req.body.planId as string
 
     const checkoutData = await BillingService.subscribe(tenantId, planId, userId)
 
     ApiResponse.success(res, {
       message: 'Subscription initiated successfully',
       data: checkoutData,
+    })
+  }),
+
+  verifyPayment: asyncHandler(async (req: Request, res: Response) => {
+    const { orderId, paymentId, signature } = req.body
+    const user = req.user as unknown as { _id: string }
+    const tenant = (req as unknown as { tenant: { _id: string } }).tenant
+    if (!user || !tenant) return res.status(401).json({ message: 'Unauthorized or missing tenant' })
+
+    const isVerified = await BillingService.verifyPayment(orderId, paymentId, signature)
+
+    ApiResponse.success(res, {
+      message: 'Payment verified successfully',
+      data: isVerified,
     })
   }),
 
@@ -35,8 +49,10 @@ const BillingController = {
     const bodyStr = reqAny.rawBody ? reqAny.rawBody.toString() : JSON.stringify(req.body)
 
     if (!verifyRazorpayWebhook(bodyStr, signature)) {
-      logger.error('Invalid Razorpay webhook signature!')
-      return res.status(400).json({ error: 'Invalid signature' })
+      throw new ApiError({
+        statusCode: 400,
+        message: 'Invalid signature'
+      })
     }
 
     const { event, payload } = req.body
@@ -51,6 +67,7 @@ const BillingController = {
 
     res.status(200).send('OK')
   }),
+
 }
 
 export default BillingController

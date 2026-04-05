@@ -1,5 +1,5 @@
 import { ApiError } from '@/utils/ApiError'
-import { razorpayInstance } from '@/services/razorpay.service'
+import { razorpayInstance, verifyRazorpaySignature } from '@/services/razorpay.service'
 import BillingDAO from './billing.dao'
 import PlanDAO from '../Plan/plan.dao'
 import TenantDAO from '../Tenant/tenant.dao'
@@ -26,10 +26,11 @@ const BillingService = {
     const amountInPaise = plan.priceMonthly * 100
 
     // Initiate Razorpay Order Tracker
+    // Note: receipt ID has a 40-character limit in Razorpay
     const order = await razorpayInstance.orders.create({
       amount: amountInPaise,
       currency: 'INR',
-      receipt: `receipt_${tenantId}_${Date.now()}`,
+      receipt: `rcpt_${tenantId.slice(-15)}_${Date.now()}`, // Safely under 40 chars
     })
 
     // Save Intent to DB initially
@@ -48,6 +49,37 @@ const BillingService = {
       currency: order.currency,
       subscriptionId: subscription._id,
     }
+  },
+
+  async verifyPayment(orderId: string, paymentId: string, signature: string) {
+    const subscription = await BillingDAO.findByOrderId(orderId)
+    if (!subscription) {
+      throw new ApiError({ statusCode: 404, message: 'Subscription not found' })
+    }
+
+    if (subscription.status !== 'created') {
+      throw new ApiError({ statusCode: 400, message: 'Subscription is not in created state' })
+    }
+
+    const isVerified = verifyRazorpaySignature(orderId, paymentId, signature)
+    if (!isVerified) {
+      throw new ApiError({ statusCode: 400, message: 'Payment verification failed' })
+    }
+
+    const updatedSub = await BillingDAO.markAsActive(orderId, paymentId, 1)
+    if (!updatedSub) {
+      throw new ApiError({ statusCode: 500, message: 'Failed to activate subscription' })
+    }
+
+    const tenant = await TenantDAO.findById(updatedSub.tenantId.toString())
+    if (tenant) {
+      tenant.planId = updatedSub.planId
+      tenant.subscriptionStatus = 'active'
+      await tenant.save()
+      logger.info(`Tenant ${tenant.slug} officially upgraded to plan ${updatedSub.planId}`)
+    }
+
+    return updatedSub
   },
 
   async handleWebhookSuccess(orderId: string, paymentId: string) {

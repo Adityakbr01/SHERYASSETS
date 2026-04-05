@@ -2,20 +2,31 @@ import { Router } from 'express'
 import { authenticateUser, requireRole, resolveTenant } from '@/middlewares/auth.middleware'
 import { validate } from '@/middlewares/validate.middleware'
 import BillingController from './billing.controller'
-import { subscribeSchema, webhookSchema } from './billing.validation'
+import { subscribeSchema, verifyPaymentSchema } from './billing.validation'
 
 const billingRouter = Router()
 
-// Public Webhook (MUST be unauthenticated)
-billingRouter.post('/webhook', validate(webhookSchema), BillingController.webhook)
+// 🔥 Webhook (public)
+billingRouter.post('/webhook', BillingController.webhook)
 
-// Protected endpoints
+// 🔐 Protected
 billingRouter.use(authenticateUser)
+
+// ✅ VERIFY PAYMENT (Fixed: Moved above dynamic route)
 billingRouter.post(
-  '/subscribe/:planId', 
-  resolveTenant, 
-  requireRole(['owner', 'admin']), 
-  validate(subscribeSchema), 
+  '/subscribe/verify',
+  resolveTenant,
+  requireRole(['owner', 'admin']),
+  validate(verifyPaymentSchema),
+  BillingController.verifyPayment
+)
+
+// 🧾 Create order
+billingRouter.post(
+  '/subscribe/:planId',
+  resolveTenant,
+  requireRole(['owner', 'admin']),
+  validate(subscribeSchema),
   BillingController.subscribe
 )
 

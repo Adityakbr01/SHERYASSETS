@@ -1,4 +1,5 @@
 // errorMap for mapping Global Errors to ApiErrors
+
 type ErrorField = {
   field?: string
   message: string
@@ -38,7 +39,19 @@ type ApiErrorLike = {
   errors?: ErrorField[]
 }
 
+type RazorpayErrorLike = {
+  statusCode?: number
+  error: {
+    code: string
+    description: string
+    field?: string
+    metadata?: Record<string, unknown>
+    reason?: string
+  }
+}
+
 export const ERROR_MAP = [
+  // ─── 1. Zod Validation Errors ──────────────────────────────────────────────
   {
     name: 'ZodError',
     handler: (err: unknown) => ({
@@ -51,11 +64,11 @@ export const ERROR_MAP = [
     }),
   },
 
+  // ─── 2. Mongoose Cast Errors (Invalid ID format, etc.) ──────────────────────
   {
     name: 'CastError',
     handler: (err: unknown) => {
       const castError = err as CastErrorLike
-
       return {
         statusCode: 400,
         message: `Invalid ${castError.path ?? 'value'}: ${String(castError.value ?? '')}`,
@@ -64,6 +77,7 @@ export const ERROR_MAP = [
     },
   },
 
+  // ─── 3. Mongo Duplicate Key Errors ─────────────────────────────────────────
   {
     name: 'MongoDuplicate',
     check: (err: unknown) => (err as MongoDuplicateLike).code === 11000,
@@ -79,6 +93,7 @@ export const ERROR_MAP = [
     },
   },
 
+  // ─── 4. Mongoose Schema Validation Errors ──────────────────────────────────
   {
     name: 'ValidationError',
     handler: (err: unknown) => {
@@ -95,6 +110,28 @@ export const ERROR_MAP = [
     },
   },
 
+  // ─── 5. Razorpay SDK Errors ───────────────────────────────────────────────
+  {
+    name: 'RazorpayError',
+    check: (err: any) => 
+      err && 
+      err.error && 
+      typeof err.error === 'object' && 
+      'description' in err.error,
+    handler: (err: any) => {
+      const rErr = err as RazorpayErrorLike
+      return {
+        statusCode: rErr.statusCode || 400,
+        message: rErr.error.description,
+        errors: [{ 
+          field: rErr.error.field || 'gateway', 
+          message: rErr.error.description 
+        }],
+      }
+    },
+  },
+
+  // ─── 6. JWT Errors ────────────────────────────────────────────────────────
   {
     name: 'JsonWebTokenError',
     handler: () => ({
@@ -113,11 +150,11 @@ export const ERROR_MAP = [
     }),
   },
 
+  // ─── 7. Custom ApiError ───────────────────────────────────────────────────
   {
     name: 'ApiError',
     handler: (err: unknown) => {
       const apiError = err as ApiErrorLike
-
       return {
         statusCode: apiError.statusCode ?? 500,
         message: apiError.message ?? 'Something went wrong',

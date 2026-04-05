@@ -20,7 +20,7 @@ const getResendClient = (): Resend | null => {
   return new Resend(env.RESEND_API_KEY)
 }
 
-export const emailWorker = new Worker(
+export const AuthEmailWorker = new Worker(
   AuthQueueName,
   async (job: Job<SendEmailData>) => {
     const { to, subject, html } = job.data
@@ -58,10 +58,10 @@ export const emailWorker = new Worker(
   },
 )
 
-emailWorker.on('completed', (job) => {
+AuthEmailWorker.on('completed', (job) => {
   logger.info(`Email job ${job.id} has completed!`)
 })
 
-emailWorker.on('failed', (job, err) => {
+AuthEmailWorker.on('failed', (job, err) => {
   logger.error(`Email job ${job?.id} has failed with ${err.message}`)
 })
