@@ -1,0 +1,39 @@
+---
+title: Troubleshooting
+description: Simple error guide with reason and fix steps
+---
+
+## Quick error table
+
+| Area       | Expected              | Got                             | Why                            | Fix                                    |
+| ---------- | --------------------- | ------------------------------- | ------------------------------ | -------------------------------------- |
+| Auth       | Login returns tokens  | 401 invalid credentials         | Wrong email or password        | Check credentials or reset password    |
+| Auth       | Protected route works | 401 token missing               | No auth header/cookie          | Add Bearer token or accessToken cookie |
+| Tenant     | Tenant route works    | 404 tenant not found            | Wrong slug or id               | Get slug/id from list endpoints        |
+| Membership | Invite accepted       | 403 different email             | Invite token email mismatch    | Login with invited email account       |
+| API Keys   | Key created           | 403 PLAN_LIMIT_API_KEYS         | Plan key limit reached         | Revoke old keys or upgrade plan        |
+| Billing    | Payment verified      | 400 payment verification failed | Invalid signature data         | Check orderId, paymentId, signature    |
+| Billing    | Webhook accepted      | 400 invalid signature           | Wrong webhook secret/signature | Verify Razorpay webhook secret         |
+| Plans      | Admin CRUD works      | 403 forbidden                   | Token is not admin             | Use system admin token                 |
+
+## Debug in this order
+
+1. Check status code and message
+2. Check auth token validity
+3. Check tenant context (activeTenantId or X-TENANT-ID)
+4. Check role (owner/admin/member/system admin)
+5. Check payload format in /api-reference
+
+## Common payload issues
+
+- Required field missing
+- Wrong type for numeric values
+- Empty string after trim
+- Invalid email format
+
+## Next pages to open
+
+- /api-reference for schema-accurate payloads
+- /authentication for token lifecycle
+- /billing for payment flow checks
+- /search-index for keyword-based discovery

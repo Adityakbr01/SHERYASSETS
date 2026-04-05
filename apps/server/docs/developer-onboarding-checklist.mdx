@@ -1,0 +1,47 @@
+---
+title: Developer Onboarding Checklist
+description: Easy checklist for new developers
+---
+
+## Day 1 checklist
+
+- Read /getting-started
+- Read /authentication and /tenant
+- Open /api-reference and confirm swagger loads
+- Confirm local BASE_URL and environment variables
+
+## Access checklist
+
+- Create user account via OTP flow
+- Login and store access token
+- Switch tenant and verify active tenant context
+- Confirm /api/v1/auth/me returns current user
+
+## Module checklist
+
+- Membership: tested invite and accept invite flow
+- API keys: tested create and revoke flow
+- Billing: tested subscribe and verify flow
+- Plans: checked public list and admin CRUD behavior
+
+## Quality checklist
+
+- Validate payloads against /api-reference
+- Use /troubleshooting when status is not 200/201
+- Use /search-index to find pages fast
+
+## Security checklist
+
+- Never commit tokens or raw API keys
+- Store raw API key securely (shown once)
+- Prefer short-lived access tokens and refresh flow
+- Verify webhook signatures for billing
+
+## Ready-to-ship checklist
+
+- Reproduce one full owner flow
+- Reproduce one admin flow
+- Reproduce one member flow
+- Share tested curl commands in team docs
+
+<Info>Next step: open /api-recipes for copy-paste commands by role.</Info>

@@ -1,0 +1,36 @@
+---
+title: Plans Module
+description: Public plan listing and admin CRUD with expected outcomes
+---
+
+## What this module does
+
+Plans module defines commercial and feature limits.
+
+- Public list plans
+- Admin create/update/delete plans
+
+## Endpoints
+
+| Method | Endpoint           | Auth     | Role   |
+| ------ | ------------------ | -------- | ------ |
+| GET    | /api/v1/plans      | No       | Public |
+| POST   | /api/v1/plans      | Required | admin  |
+| PUT    | /api/v1/plans/{id} | Required | admin  |
+| DELETE | /api/v1/plans/{id} | Required | admin  |
+
+## Expected vs got
+
+| Expected             | What you got          | Why it happens                  | How to fix                   |
+| -------------------- | --------------------- | ------------------------------- | ---------------------------- |
+| Public plans list    | 200 with meta.isCache | Normal behavior                 | No action needed             |
+| Admin create success | 400 validation failed | Invalid payload shape or values | Follow schema constraints    |
+| Admin update success | 403 forbidden         | Non-admin caller                | Use system admin account     |
+| Admin delete success | 404 plan not found    | Invalid or deleted id           | Verify plan id before delete |
+
+## Quick fix checklist
+
+1. Use admin user token for write operations
+2. Validate numeric limits are >= -1 where applicable
+3. Validate priceMonthly >= 0
+4. Use GET /api/v1/plans to confirm plan existence first

@@ -113,20 +113,26 @@ export const ERROR_MAP = [
   // ─── 5. Razorpay SDK Errors ───────────────────────────────────────────────
   {
     name: 'RazorpayError',
-    check: (err: any) => 
-      err && 
-      err.error && 
-      typeof err.error === 'object' && 
-      'description' in err.error,
-    handler: (err: any) => {
+    check: (err: unknown) => {
+      const e = err as RazorpayErrorLike
+      return (
+        e !== null &&
+        e.error !== undefined &&
+        typeof e.error === 'object' &&
+        'description' in e.error
+      )
+    },
+    handler: (err: unknown) => {
       const rErr = err as RazorpayErrorLike
       return {
         statusCode: rErr.statusCode || 400,
         message: rErr.error.description,
-        errors: [{ 
-          field: rErr.error.field || 'gateway', 
-          message: rErr.error.description 
-        }],
+        errors: [
+          {
+            field: rErr.error.field || 'gateway',
+            message: rErr.error.description,
+          },
+        ],
       }
     },
   },

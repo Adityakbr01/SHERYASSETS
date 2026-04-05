@@ -1,0 +1,145 @@
+---
+title: Getting Started
+description: Simple setup guide for all developers
+---
+
+## Start here
+
+<Info>
+  First time here? Open /developer-onboarding-checklist first. Then run /api-recipes.
+</Info>
+
+<CardGroup cols={2}>
+  <Card title="Developer Onboarding" icon="check" href="/developer-onboarding-checklist">
+    One-page setup checklist for new team members.
+  </Card>
+  <Card title="API Recipes" icon="terminal" href="/api-recipes">
+    Copy-paste commands with role-based flows.
+  </Card>
+</CardGroup>
+
+## Setup in 5 minutes
+
+SheryAssets gives you backend features for:
+
+- Authentication and tenant switching
+- Membership and role management
+- Plan and billing workflows
+- API key management for server-to-server access
+
+## Before you begin
+
+- A running server instance
+- Base URL for your environment
+- A valid user account
+
+<Note>Use local base URL http://localhost:5000 for development.</Note>
+
+## Step 1: Authenticate
+
+Do auth in this order:
+
+1. Send OTP
+2. Register with OTP
+3. Login
+4. Switch tenant if needed
+
+For full details, open /authentication.
+
+### Expected
+
+- You receive access and refresh tokens
+- You can call /api/v1/auth/me and get user data
+
+### If you got errors
+
+- 400 means payload format is wrong
+- 401 means token is missing or invalid
+- 409 means email already exists
+
+Fix from /authentication.
+
+## Step 2: Choose auth strategy
+
+Use one of these for protected endpoints:
+
+- Bearer access token
+- Access token cookie
+
+Tenant-scoped routes also need tenant context from activeTenantId in JWT or X-TENANT-ID header.
+
+## Copy-paste setup (recommended)
+
+Set these once, then copy-paste commands.
+
+```bash
+BASE_URL=http://localhost:5000
+ACCESS_TOKEN=replace_me
+ADMIN_TOKEN=replace_me
+TENANT_ID=replace_me
+PLAN_ID=replace_me
+KEY_ID=replace_me
+```
+
+Quick sanity checks:
+
+```bash
+curl "$BASE_URL/swagger.json"
+curl "$BASE_URL/api/v1/health"
+curl "$BASE_URL/api/v1/auth/me" -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+Expected results:
+
+- `/swagger.json` returns OpenAPI JSON
+- `/api/v1/health` returns healthy response
+- `/api/v1/auth/me` returns current user data when token is valid
+
+## Step 3: Open module docs
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="shield" href="/authentication">
+    Login, refresh, logout, password reset, and tenant switch.
+  </Card>
+  <Card title="Tenant" icon="buildings" href="/tenant">
+    Tenant lookup and context behavior for scoped requests.
+  </Card>
+  <Card title="Membership" icon="users" href="/membership">
+    Team invites, accept flow, and role-based controls.
+  </Card>
+  <Card title="API Keys" icon="key" href="/apikeys">
+    Create, list, revoke, and key-limit troubleshooting.
+  </Card>
+  <Card title="Plans" icon="coins" href="/plans">
+    Public plan list and admin CRUD behavior.
+  </Card>
+  <Card title="Billing" icon="credit-card" href="/billing">
+    Create subscription order, verify payment, and webhook handling.
+  </Card>
+  <Card title="API Reference" icon="book-open" href="/api-reference">
+    Full OpenAPI reference from generated swagger.json.
+  </Card>
+  <Card title="Upload" icon="upload" href="/upload">
+    Upload and delivery guide for asset workflows.
+  </Card>
+</CardGroup>
+
+## Step 4: Validate API docs source
+
+API reference is generated from:
+
+- GET /swagger.json
+
+Mintlify reads this endpoint to render /api-reference.
+
+## Step 5: Search quickly
+
+- Use built-in search in docs UI
+- Use keyword index at /search-index
+- Use error matrix at /troubleshooting
+
+## Next steps
+
+- Start auth flow: /authentication
+- Start billing flow: /billing
+- See all endpoints quickly: /api-reference

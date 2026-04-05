@@ -1,0 +1,39 @@
+---
+title: Tenant Module
+description: Tenant context, expected behavior, common failures, and fixes
+---
+
+## What this module does
+
+Tenant module resolves organization context for requests.
+
+- List all tenants for current user
+- Fetch tenant by slug
+- Enforce active tenant access before tenant-scoped operations
+
+## Endpoints
+
+| Method | Endpoint                    | Auth     | Purpose              |
+| ------ | --------------------------- | -------- | -------------------- |
+| GET    | /api/v1/tenants/my-tenants  | Required | List user tenants    |
+| GET    | /api/v1/tenants/slug/{slug} | Required | Fetch tenant by slug |
+
+## Expected vs got
+
+| Expected                | What you got         | Why it happens                           | How to fix                                         |
+| ----------------------- | -------------------- | ---------------------------------------- | -------------------------------------------------- |
+| 200 with tenant list    | 401 Unauthorized     | Missing or invalid token                 | Send Bearer token or accessToken cookie            |
+| 200 with tenant data    | 404 Tenant not found | Wrong slug                               | Use slug returned by register or my-tenants        |
+| Tenant role in response | role is null         | User is not active member of that tenant | Invite user to tenant or switch to correct account |
+
+## Quick fix checklist
+
+1. Confirm Authorization header is present
+2. Confirm token is not expired
+3. Call /api/v1/auth/me to validate auth session
+4. Use slug from /api/v1/tenants/my-tenants
+
+<Info>
+  If you are blocked by tenant context on other modules, switch tenant first from
+  /authentication guide.
+</Info>

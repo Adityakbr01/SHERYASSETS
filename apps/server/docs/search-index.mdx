@@ -1,0 +1,48 @@
+---
+title: Search Index
+description: Search-ready keyword map to quickly locate endpoints, modules, and fixes
+---
+
+## Use built-in search
+
+Mintlify provides built-in search across all pages in this docs site.
+
+Tips:
+
+- Search by endpoint fragment like switch-tenant or subscribe/verify
+- Search by status code like 401, 403, 404, 429
+- Search by error phrases like invalid signature or plan limit
+- Search old slug alias plan-roadmap to find the renamed roadmap page
+
+## Keyword map
+
+| Search keyword                               | Go to                           |
+| -------------------------------------------- | ------------------------------- |
+| login, register, refresh, logout             | /authentication                 |
+| tenant, slug, my-tenants                     | /tenant                         |
+| invite, accept-invite, remove-member         | /membership                     |
+| api key, revoke, PLAN_LIMIT_API_KEYS         | /apikeys                        |
+| plan, admin CRUD, priceMonthly               | /plans                          |
+| plan-roadmap, pricing roadmap                | /pricing-and-roadmap            |
+| subscribe, verify, webhook, razorpay         | /billing                        |
+| upload, asset, multipart                     | /upload                         |
+| 401, 403, 404, 429, troubleshooting          | /troubleshooting                |
+| onboarding checklist, new developer          | /developer-onboarding-checklist |
+| owner flow, admin flow, member flow, recipes | /api-recipes                    |
+
+## Endpoint quick lookup
+
+| Module     | Endpoints              |
+| ---------- | ---------------------- |
+| Auth       | /api/v1/auth/\*        |
+| Tenant     | /api/v1/tenants/\*     |
+| Membership | /api/v1/memberships/\* |
+| API Keys   | /api/v1/api-keys\*     |
+| Billing    | /api/v1/billing/\*     |
+| Plans      | /api/v1/plans\*        |
+
+<Info>For complete request and response schemas, open /api-reference.</Info>
+
+## Alias note
+
+If you search for plan-roadmap, use /pricing-and-roadmap.

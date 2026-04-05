@@ -1,0 +1,1681 @@
+{
+    "openapi":  "3.0.0",
+    "info":  {
+                 "title":  "SHERYASSETS API",
+                 "version":  "1.0.0",
+                 "description":  "API Documentation for SheryAssets"
+             },
+    "servers":  [
+                    {
+                        "url":  "http://localhost:5000",
+                        "description":  "Local development server"
+                    }
+                ],
+    "components":  {
+                       "securitySchemes":  {
+                                               "bearerAuth":  {
+                                                                  "type":  "http",
+                                                                  "scheme":  "bearer",
+                                                                  "bearerFormat":  "JWT"
+                                                              },
+                                               "cookieAuth":  {
+                                                                  "type":  "apiKey",
+                                                                  "in":  "cookie",
+                                                                  "name":  "accessToken"
+                                                              },
+                                               "apiKeyAuth":  {
+                                                                  "type":  "apiKey",
+                                                                  "in":  "header",
+                                                                  "name":  "x-api-key"
+                                                              }
+                                           },
+                       "schemas":  {
+                                       "AuthErrorItem":  {
+                                                             "type":  "object",
+                                                             "properties":  {
+                                                                                "code":  {
+                                                                                             "type":  "string",
+                                                                                             "example":  "INVALID_TYPE"
+                                                                                         },
+                                                                                "path":  {
+                                                                                             "type":  "array",
+                                                                                             "items":  {
+                                                                                                           "anyOf":  [
+                                                                                                                         {
+                                                                                                                             "type":  "string"
+                                                                                                                         },
+                                                                                                                         {
+                                                                                                                             "type":  "number"
+                                                                                                                         }
+                                                                                                                     ]
+                                                                                                       },
+                                                                                             "example":  [
+                                                                                                             "body",
+                                                                                                             "email"
+                                                                                                         ]
+                                                                                         },
+                                                                                "message":  {
+                                                                                                "type":  "string",
+                                                                                                "example":  "Valid email is required"
+                                                                                            }
+                                                                            },
+                                                             "required":  [
+                                                                              "code",
+                                                                              "path",
+                                                                              "message"
+                                                                          ]
+                                                         },
+                                       "AuthErrorResponse":  {
+                                                                 "type":  "object",
+                                                                 "properties":  {
+                                                                                    "success":  {
+                                                                                                    "type":  "boolean",
+                                                                                                    "enum":  [
+                                                                                                                 false
+                                                                                                             ],
+                                                                                                    "example":  false
+                                                                                                },
+                                                                                    "message":  {
+                                                                                                    "type":  "string",
+                                                                                                    "example":  "Validation failed"
+                                                                                                },
+                                                                                    "errorCode":  {
+                                                                                                      "type":  "string",
+                                                                                                      "example":  "UNAUTHORIZED"
+                                                                                                  },
+                                                                                    "errors":  {
+                                                                                                   "type":  "array",
+                                                                                                   "items":  {
+                                                                                                                 "$ref":  "#/components/schemas/AuthErrorItem"
+                                                                                                             }
+                                                                                               }
+                                                                                },
+                                                                 "required":  [
+                                                                                  "success",
+                                                                                  "message"
+                                                                              ]
+                                                             },
+                                       "AuthUser":  {
+                                                        "type":  "object",
+                                                        "properties":  {
+                                                                           "_id":  {
+                                                                                       "type":  "string",
+                                                                                       "example":  "67f0be5b5998de9765a2f2d6"
+                                                                                   },
+                                                                           "name":  {
+                                                                                        "type":  "string",
+                                                                                        "example":  "Aaditya Sharma"
+                                                                                    },
+                                                                           "email":  {
+                                                                                         "type":  "string",
+                                                                                         "format":  "email",
+                                                                                         "example":  "aaditya@sheryassets.com"
+                                                                                     },
+                                                                           "role":  {
+                                                                                        "type":  "string",
+                                                                                        "example":  "user"
+                                                                                    },
+                                                                           "isEmailVerified":  {
+                                                                                                   "type":  "boolean",
+                                                                                                   "example":  true
+                                                                                               }
+                                                                       },
+                                                        "required":  [
+                                                                         "_id",
+                                                                         "name",
+                                                                         "email",
+                                                                         "role",
+                                                                         "isEmailVerified"
+                                                                     ]
+                                                    },
+                                       "AuthTenant":  {
+                                                          "type":  "object",
+                                                          "properties":  {
+                                                                             "tenantId":  {
+                                                                                              "type":  "string",
+                                                                                              "example":  "67f0be5b5998de9765a2f2e1"
+                                                                                          },
+                                                                             "role":  {
+                                                                                          "type":  "string",
+                                                                                          "enum":  [
+                                                                                                       "owner",
+                                                                                                       "admin",
+                                                                                                       "member"
+                                                                                                   ],
+                                                                                          "example":  "owner"
+                                                                                      },
+                                                                             "name":  {
+                                                                                          "type":  "string",
+                                                                                          "example":  "SheryAssets Workspace"
+                                                                                      },
+                                                                             "slug":  {
+                                                                                          "type":  "string",
+                                                                                          "example":  "sheryassets-workspace"
+                                                                                      }
+                                                                         },
+                                                          "required":  [
+                                                                           "tenantId",
+                                                                           "role",
+                                                                           "name",
+                                                                           "slug"
+                                                                       ]
+                                                      },
+                                       "AuthTokens":  {
+                                                          "type":  "object",
+                                                          "properties":  {
+                                                                             "accessToken":  {
+                                                                                                 "type":  "string",
+                                                                                                 "example":  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.access-token"
+                                                                                             },
+                                                                             "refreshToken":  {
+                                                                                                  "type":  "string",
+                                                                                                  "example":  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh-token"
+                                                                                              }
+                                                                         },
+                                                          "required":  [
+                                                                           "accessToken",
+                                                                           "refreshToken"
+                                                                       ]
+                                                      },
+                                       "AuthSuccessEnvelope":  {
+                                                                   "type":  "object",
+                                                                   "properties":  {
+                                                                                      "success":  {
+                                                                                                      "type":  "boolean",
+                                                                                                      "enum":  [
+                                                                                                                   true
+                                                                                                               ],
+                                                                                                      "example":  true
+                                                                                                  },
+                                                                                      "message":  {
+                                                                                                      "type":  "string",
+                                                                                                      "example":  "Operation successful"
+                                                                                                  },
+                                                                                      "data":  {
+                                                                                                   "nullable":  true
+                                                                                               },
+                                                                                      "meta":  {
+                                                                                                   "nullable":  true
+                                                                                               }
+                                                                                  },
+                                                                   "required":  [
+                                                                                    "success",
+                                                                                    "message"
+                                                                                ]
+                                                               },
+                                       "AuthLoginRegisterResponse":  {
+                                                                         "type":  "object",
+                                                                         "properties":  {
+                                                                                            "success":  {
+                                                                                                            "type":  "boolean",
+                                                                                                            "enum":  [
+                                                                                                                         true
+                                                                                                                     ]
+                                                                                                        },
+                                                                                            "message":  {
+                                                                                                            "type":  "string",
+                                                                                                            "example":  "Login successful"
+                                                                                                        },
+                                                                                            "data":  {
+                                                                                                         "type":  "object",
+                                                                                                         "properties":  {
+                                                                                                                            "user":  {
+                                                                                                                                         "$ref":  "#/components/schemas/AuthUser"
+                                                                                                                                     },
+                                                                                                                            "tenants":  {
+                                                                                                                                            "type":  "array",
+                                                                                                                                            "items":  {
+                                                                                                                                                          "$ref":  "#/components/schemas/AuthTenant"
+                                                                                                                                                      }
+                                                                                                                                        },
+                                                                                                                            "accessToken":  {
+                                                                                                                                                "type":  "string",
+                                                                                                                                                "example":  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.access-token"
+                                                                                                                                            },
+                                                                                                                            "refreshToken":  {
+                                                                                                                                                 "type":  "string",
+                                                                                                                                                 "example":  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh-token"
+                                                                                                                                             }
+                                                                                                                        },
+                                                                                                         "required":  [
+                                                                                                                          "user",
+                                                                                                                          "tenants",
+                                                                                                                          "accessToken",
+                                                                                                                          "refreshToken"
+                                                                                                                      ]
+                                                                                                     }
+                                                                                        },
+                                                                         "required":  [
+                                                                                          "success",
+                                                                                          "message",
+                                                                                          "data"
+                                                                                      ]
+                                                                     },
+                                       "AuthSwitchTenantResponse":  {
+                                                                        "type":  "object",
+                                                                        "properties":  {
+                                                                                           "success":  {
+                                                                                                           "type":  "boolean",
+                                                                                                           "enum":  [
+                                                                                                                        true
+                                                                                                                    ]
+                                                                                                       },
+                                                                                           "message":  {
+                                                                                                           "type":  "string",
+                                                                                                           "example":  "Tenant switched successfully"
+                                                                                                       },
+                                                                                           "data":  {
+                                                                                                        "type":  "object",
+                                                                                                        "properties":  {
+                                                                                                                           "accessToken":  {
+                                                                                                                                               "type":  "string",
+                                                                                                                                               "example":  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new-access-token"
+                                                                                                                                           },
+                                                                                                                           "tenant":  {
+                                                                                                                                          "$ref":  "#/components/schemas/AuthTenant"
+                                                                                                                                      }
+                                                                                                                       },
+                                                                                                        "required":  [
+                                                                                                                         "accessToken",
+                                                                                                                         "tenant"
+                                                                                                                     ]
+                                                                                                    }
+                                                                                       },
+                                                                        "required":  [
+                                                                                         "success",
+                                                                                         "message",
+                                                                                         "data"
+                                                                                     ]
+                                                                    },
+                                       "AuthCurrentUserResponse":  {
+                                                                       "type":  "object",
+                                                                       "properties":  {
+                                                                                          "success":  {
+                                                                                                          "type":  "boolean",
+                                                                                                          "enum":  [
+                                                                                                                       true
+                                                                                                                   ]
+                                                                                                      },
+                                                                                          "message":  {
+                                                                                                          "type":  "string",
+                                                                                                          "example":  "Current user fetched"
+                                                                                                      },
+                                                                                          "data":  {
+                                                                                                       "allOf":  [
+                                                                                                                     {
+                                                                                                                         "$ref":  "#/components/schemas/AuthUser"
+                                                                                                                     },
+                                                                                                                     {
+                                                                                                                         "type":  "object",
+                                                                                                                         "properties":  {
+                                                                                                                                            "tenants":  {
+                                                                                                                                                            "type":  "array",
+                                                                                                                                                            "items":  {
+                                                                                                                                                                          "$ref":  "#/components/schemas/AuthTenant"
+                                                                                                                                                                      }
+                                                                                                                                                        }
+                                                                                                                                        },
+                                                                                                                         "required":  [
+                                                                                                                                          "tenants"
+                                                                                                                                      ]
+                                                                                                                     }
+                                                                                                                 ]
+                                                                                                   }
+                                                                                      },
+                                                                       "required":  [
+                                                                                        "success",
+                                                                                        "message",
+                                                                                        "data"
+                                                                                    ]
+                                                                   },
+                                       "BillingErrorResponse":  {
+                                                                    "type":  "object",
+                                                                    "properties":  {
+                                                                                       "success":  {
+                                                                                                       "type":  "boolean",
+                                                                                                       "enum":  [
+                                                                                                                    false
+                                                                                                                ]
+                                                                                                   },
+                                                                                       "message":  {
+                                                                                                       "type":  "string",
+                                                                                                       "example":  "Payment verification failed"
+                                                                                                   },
+                                                                                       "errorCode":  {
+                                                                                                         "type":  "string"
+                                                                                                     },
+                                                                                       "errors":  {
+                                                                                                      "type":  "array",
+                                                                                                      "items":  {
+                                                                                                                    "nullable":  true
+                                                                                                                }
+                                                                                                  }
+                                                                                   },
+                                                                    "required":  [
+                                                                                     "success",
+                                                                                     "message"
+                                                                                 ]
+                                                                },
+                                       "BillingSubscriptionIntent":  {
+                                                                         "type":  "object",
+                                                                         "properties":  {
+                                                                                            "orderId":  {
+                                                                                                            "type":  "string",
+                                                                                                            "example":  "order_Q31k8jx9WJ9V0a"
+                                                                                                        },
+                                                                                            "amount":  {
+                                                                                                           "type":  "number",
+                                                                                                           "example":  2900,
+                                                                                                           "description":  "Amount in paise"
+                                                                                                       },
+                                                                                            "currency":  {
+                                                                                                             "type":  "string",
+                                                                                                             "example":  "INR"
+                                                                                                         },
+                                                                                            "subscriptionId":  {
+                                                                                                                   "type":  "string",
+                                                                                                                   "example":  "67f0be5b5998de9765a2f5b9"
+                                                                                                               }
+                                                                                        },
+                                                                         "required":  [
+                                                                                          "orderId",
+                                                                                          "amount",
+                                                                                          "currency",
+                                                                                          "subscriptionId"
+                                                                                      ]
+                                                                     },
+                                       "BillingSubscriptionRecord":  {
+                                                                         "type":  "object",
+                                                                         "properties":  {
+                                                                                            "_id":  {
+                                                                                                        "type":  "string",
+                                                                                                        "example":  "67f0be5b5998de9765a2f5b9"
+                                                                                                    },
+                                                                                            "tenantId":  {
+                                                                                                             "type":  "string",
+                                                                                                             "example":  "67f0be5b5998de9765a2f2e1"
+                                                                                                         },
+                                                                                            "planId":  {
+                                                                                                           "type":  "string",
+                                                                                                           "example":  "67f0be5b5998de9765a2f2ef"
+                                                                                                       },
+                                                                                            "userId":  {
+                                                                                                           "type":  "string",
+                                                                                                           "example":  "67f0be5b5998de9765a2f2d6"
+                                                                                                       },
+                                                                                            "razorpayOrderId":  {
+                                                                                                                    "type":  "string",
+                                                                                                                    "example":  "order_Q31k8jx9WJ9V0a"
+                                                                                                                },
+                                                                                            "razorpayPaymentId":  {
+                                                                                                                      "type":  "string",
+                                                                                                                      "nullable":  true,
+                                                                                                                      "example":  "pay_Q31lL9Vd2kacZs"
+                                                                                                                  },
+                                                                                            "amount":  {
+                                                                                                           "type":  "number",
+                                                                                                           "example":  29
+                                                                                                       },
+                                                                                            "status":  {
+                                                                                                           "type":  "string",
+                                                                                                           "enum":  [
+                                                                                                                        "created",
+                                                                                                                        "active",
+                                                                                                                        "failed",
+                                                                                                                        "cancelled"
+                                                                                                                    ],
+                                                                                                           "example":  "active"
+                                                                                                       },
+                                                                                            "startDate":  {
+                                                                                                              "type":  "string",
+                                                                                                              "format":  "date-time",
+                                                                                                              "example":  "2026-04-05T12:08:12.000Z"
+                                                                                                          },
+                                                                                            "endDate":  {
+                                                                                                            "type":  "string",
+                                                                                                            "format":  "date-time",
+                                                                                                            "example":  "2026-05-05T12:08:12.000Z"
+                                                                                                        },
+                                                                                            "createdAt":  {
+                                                                                                              "type":  "string",
+                                                                                                              "format":  "date-time"
+                                                                                                          },
+                                                                                            "updatedAt":  {
+                                                                                                              "type":  "string",
+                                                                                                              "format":  "date-time"
+                                                                                                          }
+                                                                                        },
+                                                                         "required":  [
+                                                                                          "_id",
+                                                                                          "tenantId",
+                                                                                          "planId",
+                                                                                          "userId",
+                                                                                          "razorpayOrderId",
+                                                                                          "amount",
+                                                                                          "status"
+                                                                                      ]
+                                                                     },
+                                       "BillingSuccessEnvelope":  {
+                                                                      "type":  "object",
+                                                                      "properties":  {
+                                                                                         "success":  {
+                                                                                                         "type":  "boolean",
+                                                                                                         "enum":  [
+                                                                                                                      true
+                                                                                                                  ]
+                                                                                                     },
+                                                                                         "message":  {
+                                                                                                         "type":  "string"
+                                                                                                     },
+                                                                                         "data":  {
+                                                                                                      "nullable":  true
+                                                                                                  },
+                                                                                         "meta":  {
+                                                                                                      "nullable":  true
+                                                                                                  }
+                                                                                     },
+                                                                      "required":  [
+                                                                                       "success",
+                                                                                       "message"
+                                                                                   ]
+                                                                  },
+                                       "TenantErrorResponse":  {
+                                                                   "type":  "object",
+                                                                   "properties":  {
+                                                                                      "success":  {
+                                                                                                      "type":  "boolean",
+                                                                                                      "enum":  [
+                                                                                                                   false
+                                                                                                               ]
+                                                                                                  },
+                                                                                      "message":  {
+                                                                                                      "type":  "string",
+                                                                                                      "example":  "Tenant not found"
+                                                                                                  },
+                                                                                      "errorCode":  {
+                                                                                                        "type":  "string"
+                                                                                                    },
+                                                                                      "errors":  {
+                                                                                                     "type":  "array",
+                                                                                                     "items":  {
+                                                                                                                   "nullable":  true
+                                                                                                               }
+                                                                                                 }
+                                                                                  },
+                                                                   "required":  [
+                                                                                    "success",
+                                                                                    "message"
+                                                                                ]
+                                                               },
+                                       "TenantEntity":  {
+                                                            "type":  "object",
+                                                            "properties":  {
+                                                                               "_id":  {
+                                                                                           "type":  "string",
+                                                                                           "example":  "67f0be5b5998de9765a2f2e1"
+                                                                                       },
+                                                                               "name":  {
+                                                                                            "type":  "string",
+                                                                                            "example":  "SheryAssets Workspace"
+                                                                                        },
+                                                                               "slug":  {
+                                                                                            "type":  "string",
+                                                                                            "example":  "sheryassets-workspace"
+                                                                                        },
+                                                                               "ownerUserId":  {
+                                                                                                   "type":  "string",
+                                                                                                   "example":  "67f0be5b5998de9765a2f2d6"
+                                                                                               },
+                                                                               "planId":  {
+                                                                                              "type":  "string",
+                                                                                              "example":  "67f0be5b5998de9765a2f2ef"
+                                                                                          },
+                                                                               "status":  {
+                                                                                              "type":  "string",
+                                                                                              "example":  "active"
+                                                                                          },
+                                                                               "billingEmail":  {
+                                                                                                    "type":  "string",
+                                                                                                    "format":  "email",
+                                                                                                    "example":  "founder@sheryassets.com"
+                                                                                                },
+                                                                               "subscriptionStatus":  {
+                                                                                                          "type":  "string",
+                                                                                                          "nullable":  true,
+                                                                                                          "example":  "active"
+                                                                                                      },
+                                                                               "createdAt":  {
+                                                                                                 "type":  "string",
+                                                                                                 "format":  "date-time"
+                                                                                             },
+                                                                               "updatedAt":  {
+                                                                                                 "type":  "string",
+                                                                                                 "format":  "date-time"
+                                                                                             }
+                                                                           },
+                                                            "required":  [
+                                                                             "_id",
+                                                                             "name",
+                                                                             "slug",
+                                                                             "ownerUserId",
+                                                                             "planId",
+                                                                             "status",
+                                                                             "billingEmail"
+                                                                         ]
+                                                        },
+                                       "TenantWithRole":  {
+                                                              "allOf":  [
+                                                                            {
+                                                                                "$ref":  "#/components/schemas/TenantEntity"
+                                                                            },
+                                                                            {
+                                                                                "type":  "object",
+                                                                                "properties":  {
+                                                                                                   "role":  {
+                                                                                                                "type":  "string",
+                                                                                                                "enum":  [
+                                                                                                                             "owner",
+                                                                                                                             "admin",
+                                                                                                                             "member"
+                                                                                                                         ],
+                                                                                                                "example":  "owner"
+                                                                                                            }
+                                                                                               },
+                                                                                "required":  [
+                                                                                                 "role"
+                                                                                             ]
+                                                                            }
+                                                                        ]
+                                                          },
+                                       "TenantSuccessEnvelope":  {
+                                                                     "type":  "object",
+                                                                     "properties":  {
+                                                                                        "success":  {
+                                                                                                        "type":  "boolean",
+                                                                                                        "enum":  [
+                                                                                                                     true
+                                                                                                                 ]
+                                                                                                    },
+                                                                                        "message":  {
+                                                                                                        "type":  "string"
+                                                                                                    },
+                                                                                        "data":  {
+                                                                                                     "nullable":  true
+                                                                                                 },
+                                                                                        "meta":  {
+                                                                                                     "nullable":  true
+                                                                                                 }
+                                                                                    },
+                                                                     "required":  [
+                                                                                      "success",
+                                                                                      "message"
+                                                                                  ]
+                                                                 },
+                                       "MembershipErrorResponse":  {
+                                                                       "type":  "object",
+                                                                       "properties":  {
+                                                                                          "success":  {
+                                                                                                          "type":  "boolean",
+                                                                                                          "enum":  [
+                                                                                                                       false
+                                                                                                                   ]
+                                                                                                      },
+                                                                                          "message":  {
+                                                                                                          "type":  "string",
+                                                                                                          "example":  "User does not belong to this tenant"
+                                                                                                      },
+                                                                                          "errorCode":  {
+                                                                                                            "type":  "string"
+                                                                                                        },
+                                                                                          "errors":  {
+                                                                                                         "type":  "array",
+                                                                                                         "items":  {
+                                                                                                                       "nullable":  true
+                                                                                                                   }
+                                                                                                     }
+                                                                                      },
+                                                                       "required":  [
+                                                                                        "success",
+                                                                                        "message"
+                                                                                    ]
+                                                                   },
+                                       "MembershipRecord":  {
+                                                                "type":  "object",
+                                                                "properties":  {
+                                                                                   "_id":  {
+                                                                                               "type":  "string",
+                                                                                               "example":  "67f0be5b5998de9765a2f7a2"
+                                                                                           },
+                                                                                   "userId":  {
+                                                                                                  "type":  "string",
+                                                                                                  "example":  "67f0be5b5998de9765a2f2d6"
+                                                                                              },
+                                                                                   "tenantId":  {
+                                                                                                    "type":  "string",
+                                                                                                    "example":  "67f0be5b5998de9765a2f2e1"
+                                                                                                },
+                                                                                   "role":  {
+                                                                                                "type":  "string",
+                                                                                                "enum":  [
+                                                                                                             "owner",
+                                                                                                             "admin",
+                                                                                                             "member"
+                                                                                                         ],
+                                                                                                "example":  "member"
+                                                                                            },
+                                                                                   "status":  {
+                                                                                                  "type":  "string",
+                                                                                                  "enum":  [
+                                                                                                               "active",
+                                                                                                               "invited",
+                                                                                                               "removed"
+                                                                                                           ],
+                                                                                                  "example":  "active"
+                                                                                              },
+                                                                                   "invitedBy":  {
+                                                                                                     "type":  "string",
+                                                                                                     "nullable":  true,
+                                                                                                     "example":  "67f0be5b5998de9765a2f2d9"
+                                                                                                 },
+                                                                                   "createdAt":  {
+                                                                                                     "type":  "string",
+                                                                                                     "format":  "date-time"
+                                                                                                 },
+                                                                                   "updatedAt":  {
+                                                                                                     "type":  "string",
+                                                                                                     "format":  "date-time"
+                                                                                                 }
+                                                                               },
+                                                                "required":  [
+                                                                                 "_id",
+                                                                                 "userId",
+                                                                                 "tenantId",
+                                                                                 "role",
+                                                                                 "status"
+                                                                             ]
+                                                            },
+                                       "MembershipWithTenant":  {
+                                                                    "type":  "object",
+                                                                    "properties":  {
+                                                                                       "_id":  {
+                                                                                                   "type":  "string",
+                                                                                                   "example":  "67f0be5b5998de9765a2f7a2"
+                                                                                               },
+                                                                                       "role":  {
+                                                                                                    "type":  "string",
+                                                                                                    "enum":  [
+                                                                                                                 "owner",
+                                                                                                                 "admin",
+                                                                                                                 "member"
+                                                                                                             ],
+                                                                                                    "example":  "owner"
+                                                                                                },
+                                                                                       "status":  {
+                                                                                                      "type":  "string",
+                                                                                                      "enum":  [
+                                                                                                                   "active",
+                                                                                                                   "invited",
+                                                                                                                   "removed"
+                                                                                                               ],
+                                                                                                      "example":  "active"
+                                                                                                  },
+                                                                                       "tenantId":  {
+                                                                                                        "type":  "object",
+                                                                                                        "properties":  {
+                                                                                                                           "_id":  {
+                                                                                                                                       "type":  "string",
+                                                                                                                                       "example":  "67f0be5b5998de9765a2f2e1"
+                                                                                                                                   },
+                                                                                                                           "name":  {
+                                                                                                                                        "type":  "string",
+                                                                                                                                        "example":  "SheryAssets Workspace"
+                                                                                                                                    },
+                                                                                                                           "slug":  {
+                                                                                                                                        "type":  "string",
+                                                                                                                                        "example":  "sheryassets-workspace"
+                                                                                                                                    },
+                                                                                                                           "status":  {
+                                                                                                                                          "type":  "string",
+                                                                                                                                          "example":  "active"
+                                                                                                                                      },
+                                                                                                                           "planId":  {
+                                                                                                                                          "type":  "string",
+                                                                                                                                          "example":  "67f0be5b5998de9765a2f2ef"
+                                                                                                                                      }
+                                                                                                                       },
+                                                                                                        "required":  [
+                                                                                                                         "_id",
+                                                                                                                         "name",
+                                                                                                                         "slug",
+                                                                                                                         "status",
+                                                                                                                         "planId"
+                                                                                                                     ]
+                                                                                                    }
+                                                                                   },
+                                                                    "required":  [
+                                                                                     "_id",
+                                                                                     "role",
+                                                                                     "status",
+                                                                                     "tenantId"
+                                                                                 ]
+                                                                },
+                                       "MembershipSuccessEnvelope":  {
+                                                                         "type":  "object",
+                                                                         "properties":  {
+                                                                                            "success":  {
+                                                                                                            "type":  "boolean",
+                                                                                                            "enum":  [
+                                                                                                                         true
+                                                                                                                     ]
+                                                                                                        },
+                                                                                            "message":  {
+                                                                                                            "type":  "string"
+                                                                                                        },
+                                                                                            "data":  {
+                                                                                                         "nullable":  true
+                                                                                                     },
+                                                                                            "meta":  {
+                                                                                                         "nullable":  true
+                                                                                                     }
+                                                                                        },
+                                                                         "required":  [
+                                                                                          "success",
+                                                                                          "message"
+                                                                                      ]
+                                                                     },
+                                       "ApiKeyErrorResponse":  {
+                                                                   "type":  "object",
+                                                                   "properties":  {
+                                                                                      "success":  {
+                                                                                                      "type":  "boolean",
+                                                                                                      "enum":  [
+                                                                                                                   false
+                                                                                                               ]
+                                                                                                  },
+                                                                                      "message":  {
+                                                                                                      "type":  "string",
+                                                                                                      "example":  "API key not found or already revoked"
+                                                                                                  },
+                                                                                      "errorCode":  {
+                                                                                                        "type":  "string"
+                                                                                                    },
+                                                                                      "errors":  {
+                                                                                                     "type":  "array",
+                                                                                                     "items":  {
+                                                                                                                   "nullable":  true
+                                                                                                               }
+                                                                                                 }
+                                                                                  },
+                                                                   "required":  [
+                                                                                    "success",
+                                                                                    "message"
+                                                                                ]
+                                                               },
+                                       "ApiKeyPublicRecord":  {
+                                                                  "type":  "object",
+                                                                  "properties":  {
+                                                                                     "_id":  {
+                                                                                                 "type":  "string",
+                                                                                                 "example":  "67f0be5b5998de9765a2fc10"
+                                                                                             },
+                                                                                     "tenantId":  {
+                                                                                                      "type":  "string",
+                                                                                                      "example":  "67f0be5b5998de9765a2f2e1"
+                                                                                                  },
+                                                                                     "createdBy":  {
+                                                                                                       "type":  "string",
+                                                                                                       "example":  "67f0be5b5998de9765a2f2d6"
+                                                                                                   },
+                                                                                     "name":  {
+                                                                                                  "type":  "string",
+                                                                                                  "example":  "CDN Upload Service"
+                                                                                              },
+                                                                                     "prefix":  {
+                                                                                                    "type":  "string",
+                                                                                                    "example":  "shry"
+                                                                                                },
+                                                                                     "status":  {
+                                                                                                    "type":  "string",
+                                                                                                    "enum":  [
+                                                                                                                 "active",
+                                                                                                                 "revoked"
+                                                                                                             ],
+                                                                                                    "example":  "active"
+                                                                                                },
+                                                                                     "lastUsedAt":  {
+                                                                                                        "type":  "string",
+                                                                                                        "nullable":  true,
+                                                                                                        "format":  "date-time"
+                                                                                                    },
+                                                                                     "expiresAt":  {
+                                                                                                       "type":  "string",
+                                                                                                       "nullable":  true,
+                                                                                                       "format":  "date-time"
+                                                                                                   },
+                                                                                     "createdAt":  {
+                                                                                                       "type":  "string",
+                                                                                                       "format":  "date-time"
+                                                                                                   },
+                                                                                     "updatedAt":  {
+                                                                                                       "type":  "string",
+                                                                                                       "format":  "date-time"
+                                                                                                   }
+                                                                                 },
+                                                                  "required":  [
+                                                                                   "_id",
+                                                                                   "tenantId",
+                                                                                   "createdBy",
+                                                                                   "name",
+                                                                                   "prefix",
+                                                                                   "status"
+                                                                               ]
+                                                              },
+                                       "ApiKeyCreateResponse":  {
+                                                                    "type":  "object",
+                                                                    "properties":  {
+                                                                                       "id":  {
+                                                                                                  "type":  "string",
+                                                                                                  "example":  "67f0be5b5998de9765a2fc10"
+                                                                                              },
+                                                                                       "name":  {
+                                                                                                    "type":  "string",
+                                                                                                    "example":  "CDN Upload Service"
+                                                                                                },
+                                                                                       "apiKey":  {
+                                                                                                      "type":  "string",
+                                                                                                      "example":  "shry_u9E5U8NRH9Qa7g75iTsCWw0cwjnLHEd7zH4z2c7kqn8",
+                                                                                                      "description":  "Raw key shown once at creation. Store it securely."
+                                                                                                  },
+                                                                                       "prefix":  {
+                                                                                                      "type":  "string",
+                                                                                                      "example":  "shry"
+                                                                                                  },
+                                                                                       "createdAt":  {
+                                                                                                         "type":  "string",
+                                                                                                         "format":  "date-time",
+                                                                                                         "example":  "2026-04-05T11:05:12.000Z"
+                                                                                                     }
+                                                                                   },
+                                                                    "required":  [
+                                                                                     "id",
+                                                                                     "name",
+                                                                                     "apiKey",
+                                                                                     "prefix",
+                                                                                     "createdAt"
+                                                                                 ]
+                                                                },
+                                       "ApiKeySuccessEnvelope":  {
+                                                                     "type":  "object",
+                                                                     "properties":  {
+                                                                                        "success":  {
+                                                                                                        "type":  "boolean",
+                                                                                                        "enum":  [
+                                                                                                                     true
+                                                                                                                 ]
+                                                                                                    },
+                                                                                        "message":  {
+                                                                                                        "type":  "string"
+                                                                                                    },
+                                                                                        "data":  {
+                                                                                                     "nullable":  true
+                                                                                                 },
+                                                                                        "meta":  {
+                                                                                                     "nullable":  true
+                                                                                                 }
+                                                                                    },
+                                                                     "required":  [
+                                                                                      "success",
+                                                                                      "message"
+                                                                                  ]
+                                                                 },
+                                       "PlanErrorResponse":  {
+                                                                 "type":  "object",
+                                                                 "properties":  {
+                                                                                    "success":  {
+                                                                                                    "type":  "boolean",
+                                                                                                    "enum":  [
+                                                                                                                 false
+                                                                                                             ]
+                                                                                                },
+                                                                                    "message":  {
+                                                                                                    "type":  "string",
+                                                                                                    "example":  "Plan not found"
+                                                                                                },
+                                                                                    "errorCode":  {
+                                                                                                      "type":  "string"
+                                                                                                  },
+                                                                                    "errors":  {
+                                                                                                   "type":  "array",
+                                                                                                   "items":  {
+                                                                                                                 "nullable":  true
+                                                                                                             }
+                                                                                               }
+                                                                                },
+                                                                 "required":  [
+                                                                                  "success",
+                                                                                  "message"
+                                                                              ]
+                                                             },
+                                       "PlanEntity":  {
+                                                          "type":  "object",
+                                                          "properties":  {
+                                                                             "_id":  {
+                                                                                         "type":  "string",
+                                                                                         "example":  "67f0be5b5998de9765a2f2ef"
+                                                                                     },
+                                                                             "code":  {
+                                                                                          "type":  "string",
+                                                                                          "example":  "pro"
+                                                                                      },
+                                                                             "name":  {
+                                                                                          "type":  "string",
+                                                                                          "example":  "Pro"
+                                                                                      },
+                                                                             "priceMonthly":  {
+                                                                                                  "type":  "number",
+                                                                                                  "example":  29
+                                                                                              },
+                                                                             "limits":  {
+                                                                                            "type":  "object",
+                                                                                            "properties":  {
+                                                                                                               "maxImages":  {
+                                                                                                                                 "type":  "number",
+                                                                                                                                 "example":  50000
+                                                                                                                             },
+                                                                                                               "maxBandwidthGb":  {
+                                                                                                                                      "type":  "number",
+                                                                                                                                      "example":  100
+                                                                                                                                  },
+                                                                                                               "maxApiKeys":  {
+                                                                                                                                  "type":  "number",
+                                                                                                                                  "example":  10
+                                                                                                                              },
+                                                                                                               "maxTransformations":  {
+                                                                                                                                          "type":  "number",
+                                                                                                                                          "example":  100000
+                                                                                                                                      }
+                                                                                                           },
+                                                                                            "required":  [
+                                                                                                             "maxImages",
+                                                                                                             "maxBandwidthGb",
+                                                                                                             "maxApiKeys",
+                                                                                                             "maxTransformations"
+                                                                                                         ]
+                                                                                        },
+                                                                             "features":  {
+                                                                                              "type":  "object",
+                                                                                              "properties":  {
+                                                                                                                 "priorityProcessing":  {
+                                                                                                                                            "type":  "boolean",
+                                                                                                                                            "example":  true
+                                                                                                                                        },
+                                                                                                                 "customDomain":  {
+                                                                                                                                      "type":  "boolean",
+                                                                                                                                      "example":  true
+                                                                                                                                  },
+                                                                                                                 "eagerVariants":  {
+                                                                                                                                       "type":  "boolean",
+                                                                                                                                       "example":  false
+                                                                                                                                   }
+                                                                                                             },
+                                                                                              "required":  [
+                                                                                                               "priorityProcessing",
+                                                                                                               "customDomain",
+                                                                                                               "eagerVariants"
+                                                                                                           ]
+                                                                                          },
+                                                                             "createdAt":  {
+                                                                                               "type":  "string",
+                                                                                               "format":  "date-time"
+                                                                                           },
+                                                                             "updatedAt":  {
+                                                                                               "type":  "string",
+                                                                                               "format":  "date-time"
+                                                                                           }
+                                                                         },
+                                                          "required":  [
+                                                                           "_id",
+                                                                           "code",
+                                                                           "name",
+                                                                           "priceMonthly",
+                                                                           "limits",
+                                                                           "features"
+                                                                       ]
+                                                      },
+                                       "PlanSuccessEnvelope":  {
+                                                                   "type":  "object",
+                                                                   "properties":  {
+                                                                                      "success":  {
+                                                                                                      "type":  "boolean",
+                                                                                                      "enum":  [
+                                                                                                                   true
+                                                                                                               ]
+                                                                                                  },
+                                                                                      "message":  {
+                                                                                                      "type":  "string"
+                                                                                                  },
+                                                                                      "data":  {
+                                                                                                   "nullable":  true
+                                                                                               },
+                                                                                      "meta":  {
+                                                                                                   "nullable":  true
+                                                                                               }
+                                                                                  },
+                                                                   "required":  [
+                                                                                    "success",
+                                                                                    "message"
+                                                                                ]
+                                                               }
+                                   },
+                       "parameters":  {
+
+                                      }
+                   },
+    "tags":  [
+                 {
+                     "name":  "Membership",
+                     "description":  "Membership endpoints"
+                 }
+             ],
+    "paths":  {
+                  "/api/v1/memberships/mine":  {
+                                                   "get":  {
+                                                               "summary":  "Get memberships for current user",
+                                                               "tags":  [
+                                                                            "Membership"
+                                                                        ],
+                                                               "security":  [
+                                                                                {
+                                                                                    "bearerAuth":  [
+
+                                                                                                   ]
+                                                                                },
+                                                                                {
+                                                                                    "cookieAuth":  [
+
+                                                                                                   ]
+                                                                                }
+                                                                            ],
+                                                               "responses":  {
+                                                                                 "200":  {
+                                                                                             "description":  "User memberships fetched",
+                                                                                             "content":  {
+                                                                                                             "application/json":  {
+                                                                                                                                      "schema":  {
+                                                                                                                                                     "allOf":  [
+                                                                                                                                                                   {
+                                                                                                                                                                       "$ref":  "#/components/schemas/MembershipSuccessEnvelope"
+                                                                                                                                                                   },
+                                                                                                                                                                   {
+                                                                                                                                                                       "type":  "object",
+                                                                                                                                                                       "properties":  {
+                                                                                                                                                                                          "data":  {
+                                                                                                                                                                                                       "type":  "array",
+                                                                                                                                                                                                       "items":  {
+                                                                                                                                                                                                                     "$ref":  "#/components/schemas/MembershipWithTenant"
+                                                                                                                                                                                                                 }
+                                                                                                                                                                                                   }
+                                                                                                                                                                                      },
+                                                                                                                                                                       "required":  [
+                                                                                                                                                                                        "data"
+                                                                                                                                                                                    ]
+                                                                                                                                                                   }
+                                                                                                                                                               ]
+                                                                                                                                                 }
+                                                                                                                                  }
+                                                                                                         }
+                                                                                         },
+                                                                                 "401":  {
+                                                                                             "description":  "Unauthorized",
+                                                                                             "content":  {
+                                                                                                             "application/json":  {
+                                                                                                                                      "schema":  {
+                                                                                                                                                     "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                 }
+                                                                                                                                  }
+                                                                                                         }
+                                                                                         }
+                                                                             }
+                                                           }
+                                               },
+                  "/api/v1/memberships/tenant-members":  {
+                                                             "get":  {
+                                                                         "summary":  "List active members for active tenant",
+                                                                         "description":  "Requires owner/admin role in the resolved tenant.",
+                                                                         "tags":  [
+                                                                                      "Membership"
+                                                                                  ],
+                                                                         "security":  [
+                                                                                          {
+                                                                                              "bearerAuth":  [
+
+                                                                                                             ]
+                                                                                          },
+                                                                                          {
+                                                                                              "cookieAuth":  [
+
+                                                                                                             ]
+                                                                                          }
+                                                                                      ],
+                                                                         "parameters":  [
+                                                                                            {
+                                                                                                "schema":  {
+                                                                                                               "type":  "string",
+                                                                                                               "minLength":  24,
+                                                                                                               "maxLength":  24,
+                                                                                                               "example":  "67f0be5b5998de9765a2f2e1"
+                                                                                                           },
+                                                                                                "required":  false,
+                                                                                                "name":  "x-tenant-id",
+                                                                                                "in":  "header",
+                                                                                                "description":  "Tenant ObjectId. Optional when access token already contains activeTenantId, required otherwise."
+                                                                                            }
+                                                                                        ],
+                                                                         "responses":  {
+                                                                                           "200":  {
+                                                                                                       "description":  "Tenant members fetched",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "allOf":  [
+                                                                                                                                                                             {
+                                                                                                                                                                                 "$ref":  "#/components/schemas/MembershipSuccessEnvelope"
+                                                                                                                                                                             },
+                                                                                                                                                                             {
+                                                                                                                                                                                 "type":  "object",
+                                                                                                                                                                                 "properties":  {
+                                                                                                                                                                                                    "data":  {
+                                                                                                                                                                                                                 "type":  "array",
+                                                                                                                                                                                                                 "items":  {
+                                                                                                                                                                                                                               "$ref":  "#/components/schemas/MembershipRecord"
+                                                                                                                                                                                                                           }
+                                                                                                                                                                                                             }
+                                                                                                                                                                                                },
+                                                                                                                                                                                 "required":  [
+                                                                                                                                                                                                  "data"
+                                                                                                                                                                                              ]
+                                                                                                                                                                             }
+                                                                                                                                                                         ]
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "400":  {
+                                                                                                       "description":  "Tenant context missing",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "401":  {
+                                                                                                       "description":  "Unauthorized",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "403":  {
+                                                                                                       "description":  "Role or membership restriction",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "404":  {
+                                                                                                       "description":  "Tenant not found",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   }
+                                                                                       }
+                                                                     }
+                                                         },
+                  "/api/v1/memberships/invite":  {
+                                                     "post":  {
+                                                                  "summary":  "Invite user to tenant",
+                                                                  "description":  "Owner/admin can invite admin/member users. Includes anti-spam cooldown and duplicate-invite safeguards.",
+                                                                  "tags":  [
+                                                                               "Membership"
+                                                                           ],
+                                                                  "security":  [
+                                                                                   {
+                                                                                       "bearerAuth":  [
+
+                                                                                                      ]
+                                                                                   },
+                                                                                   {
+                                                                                       "cookieAuth":  [
+
+                                                                                                      ]
+                                                                                   }
+                                                                               ],
+                                                                  "parameters":  [
+                                                                                     {
+                                                                                         "schema":  {
+                                                                                                        "type":  "string",
+                                                                                                        "minLength":  24,
+                                                                                                        "maxLength":  24,
+                                                                                                        "example":  "67f0be5b5998de9765a2f2e1"
+                                                                                                    },
+                                                                                         "required":  false,
+                                                                                         "name":  "x-tenant-id",
+                                                                                         "in":  "header",
+                                                                                         "description":  "Tenant ObjectId. Optional when access token already contains activeTenantId, required otherwise."
+                                                                                     }
+                                                                                 ],
+                                                                  "requestBody":  {
+                                                                                      "required":  true,
+                                                                                      "content":  {
+                                                                                                      "application/json":  {
+                                                                                                                               "schema":  {
+                                                                                                                                              "type":  "object",
+                                                                                                                                              "properties":  {
+                                                                                                                                                                 "email":  {
+                                                                                                                                                                               "type":  "string",
+                                                                                                                                                                               "format":  "email"
+                                                                                                                                                                           },
+                                                                                                                                                                 "role":  {
+                                                                                                                                                                              "type":  "string",
+                                                                                                                                                                              "enum":  [
+                                                                                                                                                                                           "admin",
+                                                                                                                                                                                           "member"
+                                                                                                                                                                                       ]
+                                                                                                                                                                          }
+                                                                                                                                                             },
+                                                                                                                                              "required":  [
+                                                                                                                                                               "email",
+                                                                                                                                                               "role"
+                                                                                                                                                           ]
+                                                                                                                                          },
+                                                                                                                               "examples":  {
+                                                                                                                                                "memberInvite":  {
+                                                                                                                                                                     "value":  {
+                                                                                                                                                                                   "email":  "teammate@sheryassets.com",
+                                                                                                                                                                                   "role":  "member"
+                                                                                                                                                                               }
+                                                                                                                                                                 },
+                                                                                                                                                "adminInvite":  {
+                                                                                                                                                                    "value":  {
+                                                                                                                                                                                  "email":  "ops-admin@sheryassets.com",
+                                                                                                                                                                                  "role":  "admin"
+                                                                                                                                                                              }
+                                                                                                                                                                }
+                                                                                                                                            }
+                                                                                                                           }
+                                                                                                  }
+                                                                                  },
+                                                                  "responses":  {
+                                                                                    "200":  {
+                                                                                                "description":  "Invitation queued successfully",
+                                                                                                "content":  {
+                                                                                                                "application/json":  {
+                                                                                                                                         "schema":  {
+                                                                                                                                                        "$ref":  "#/components/schemas/MembershipSuccessEnvelope"
+                                                                                                                                                    },
+                                                                                                                                         "examples":  {
+                                                                                                                                                          "success":  {
+                                                                                                                                                                          "value":  {
+                                                                                                                                                                                        "success":  true,
+                                                                                                                                                                                        "message":  "Invitation email sent successfully",
+                                                                                                                                                                                        "data":  null
+                                                                                                                                                                                    }
+                                                                                                                                                                      }
+                                                                                                                                                      }
+                                                                                                                                     }
+                                                                                                            }
+                                                                                            },
+                                                                                    "400":  {
+                                                                                                "description":  "Validation failure or owner/already-member edge case",
+                                                                                                "content":  {
+                                                                                                                "application/json":  {
+                                                                                                                                         "schema":  {
+                                                                                                                                                        "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                    },
+                                                                                                                                         "examples":  {
+                                                                                                                                                          "alreadyJoined":  {
+                                                                                                                                                                                "value":  {
+                                                                                                                                                                                              "success":  false,
+                                                                                                                                                                                              "message":  "User has already joined this tenant"
+                                                                                                                                                                                          }
+                                                                                                                                                                            },
+                                                                                                                                                          "ownerInvite":  {
+                                                                                                                                                                              "value":  {
+                                                                                                                                                                                            "success":  false,
+                                                                                                                                                                                            "message":  "User is the owner of this tenant and has already joined"
+                                                                                                                                                                                        }
+                                                                                                                                                                          }
+                                                                                                                                                      }
+                                                                                                                                     }
+                                                                                                            }
+                                                                                            },
+                                                                                    "401":  {
+                                                                                                "description":  "Unauthorized",
+                                                                                                "content":  {
+                                                                                                                "application/json":  {
+                                                                                                                                         "schema":  {
+                                                                                                                                                        "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                    }
+                                                                                                                                     }
+                                                                                                            }
+                                                                                            },
+                                                                                    "403":  {
+                                                                                                "description":  "Forbidden role/membership",
+                                                                                                "content":  {
+                                                                                                                "application/json":  {
+                                                                                                                                         "schema":  {
+                                                                                                                                                        "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                    }
+                                                                                                                                     }
+                                                                                                            }
+                                                                                            },
+                                                                                    "404":  {
+                                                                                                "description":  "Tenant not found",
+                                                                                                "content":  {
+                                                                                                                "application/json":  {
+                                                                                                                                         "schema":  {
+                                                                                                                                                        "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                    }
+                                                                                                                                     }
+                                                                                                            }
+                                                                                            },
+                                                                                    "429":  {
+                                                                                                "description":  "Invite cooldown or duplicate invite in progress",
+                                                                                                "content":  {
+                                                                                                                "application/json":  {
+                                                                                                                                         "schema":  {
+                                                                                                                                                        "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                    },
+                                                                                                                                         "examples":  {
+                                                                                                                                                          "inviterCooldown":  {
+                                                                                                                                                                                  "value":  {
+                                                                                                                                                                                                "success":  false,
+                                                                                                                                                                                                "message":  "You are sending invitations too fast. Please wait a moment."
+                                                                                                                                                                                            }
+                                                                                                                                                                              },
+                                                                                                                                                          "duplicateInvite":  {
+                                                                                                                                                                                  "value":  {
+                                                                                                                                                                                                "success":  false,
+                                                                                                                                                                                                "message":  "User already invited. Please wait for acceptance."
+                                                                                                                                                                                            }
+                                                                                                                                                                              }
+                                                                                                                                                      }
+                                                                                                                                     }
+                                                                                                            }
+                                                                                            }
+                                                                                }
+                                                              }
+                                                 },
+                  "/api/v1/memberships/accept-invite":  {
+                                                            "post":  {
+                                                                         "summary":  "Accept tenant invite token",
+                                                                         "tags":  [
+                                                                                      "Membership"
+                                                                                  ],
+                                                                         "security":  [
+                                                                                          {
+                                                                                              "bearerAuth":  [
+
+                                                                                                             ]
+                                                                                          },
+                                                                                          {
+                                                                                              "cookieAuth":  [
+
+                                                                                                             ]
+                                                                                          }
+                                                                                      ],
+                                                                         "requestBody":  {
+                                                                                             "required":  true,
+                                                                                             "content":  {
+                                                                                                             "application/json":  {
+                                                                                                                                      "schema":  {
+                                                                                                                                                     "type":  "object",
+                                                                                                                                                     "properties":  {
+                                                                                                                                                                        "token":  {
+                                                                                                                                                                                      "type":  "string",
+                                                                                                                                                                                      "minLength":  1
+                                                                                                                                                                                  }
+                                                                                                                                                                    },
+                                                                                                                                                     "required":  [
+                                                                                                                                                                      "token"
+                                                                                                                                                                  ]
+                                                                                                                                                 },
+                                                                                                                                      "examples":  {
+                                                                                                                                                       "valid":  {
+                                                                                                                                                                     "value":  {
+                                                                                                                                                                                   "token":  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invite-token"
+                                                                                                                                                                               }
+                                                                                                                                                                 }
+                                                                                                                                                   }
+                                                                                                                                  }
+                                                                                                         }
+                                                                                         },
+                                                                         "responses":  {
+                                                                                           "200":  {
+                                                                                                       "description":  "Invitation accepted and membership created",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "allOf":  [
+                                                                                                                                                                             {
+                                                                                                                                                                                 "$ref":  "#/components/schemas/MembershipSuccessEnvelope"
+                                                                                                                                                                             },
+                                                                                                                                                                             {
+                                                                                                                                                                                 "type":  "object",
+                                                                                                                                                                                 "properties":  {
+                                                                                                                                                                                                    "data":  {
+                                                                                                                                                                                                                 "$ref":  "#/components/schemas/MembershipRecord"
+                                                                                                                                                                                                             }
+                                                                                                                                                                                                },
+                                                                                                                                                                                 "required":  [
+                                                                                                                                                                                                  "data"
+                                                                                                                                                                                              ]
+                                                                                                                                                                             }
+                                                                                                                                                                         ]
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "400":  {
+                                                                                                       "description":  "Invalid token format or user already a member",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           },
+                                                                                                                                                "examples":  {
+                                                                                                                                                                 "alreadyMember":  {
+                                                                                                                                                                                       "value":  {
+                                                                                                                                                                                                     "success":  false,
+                                                                                                                                                                                                     "message":  "You are already a member of this tenant"
+                                                                                                                                                                                                 }
+                                                                                                                                                                                   }
+                                                                                                                                                             }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "401":  {
+                                                                                                       "description":  "Unauthorized or invalid/expired JWT token",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "403":  {
+                                                                                                       "description":  "Invite token email mismatch edge case",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           },
+                                                                                                                                                "examples":  {
+                                                                                                                                                                 "wrongEmail":  {
+                                                                                                                                                                                    "value":  {
+                                                                                                                                                                                                  "success":  false,
+                                                                                                                                                                                                  "message":  "This invitation was sent to a different email address. Please create an account with the invited email or login with the correct account first, then try again."
+                                                                                                                                                                                              }
+                                                                                                                                                                                }
+                                                                                                                                                             }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "404":  {
+                                                                                                       "description":  "User account missing",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   }
+                                                                                       }
+                                                                     }
+                                                        },
+                  "/api/v1/memberships/remove-member":  {
+                                                            "post":  {
+                                                                         "summary":  "Remove active member from tenant",
+                                                                         "description":  "Only owner/admin can remove members. Tenant owner cannot be removed.",
+                                                                         "tags":  [
+                                                                                      "Membership"
+                                                                                  ],
+                                                                         "security":  [
+                                                                                          {
+                                                                                              "bearerAuth":  [
+
+                                                                                                             ]
+                                                                                          },
+                                                                                          {
+                                                                                              "cookieAuth":  [
+
+                                                                                                             ]
+                                                                                          }
+                                                                                      ],
+                                                                         "parameters":  [
+                                                                                            {
+                                                                                                "schema":  {
+                                                                                                               "type":  "string",
+                                                                                                               "minLength":  24,
+                                                                                                               "maxLength":  24,
+                                                                                                               "example":  "67f0be5b5998de9765a2f2e1"
+                                                                                                           },
+                                                                                                "required":  false,
+                                                                                                "name":  "x-tenant-id",
+                                                                                                "in":  "header",
+                                                                                                "description":  "Tenant ObjectId. Optional when access token already contains activeTenantId, required otherwise."
+                                                                                            }
+                                                                                        ],
+                                                                         "requestBody":  {
+                                                                                             "required":  true,
+                                                                                             "content":  {
+                                                                                                             "application/json":  {
+                                                                                                                                      "schema":  {
+                                                                                                                                                     "type":  "object",
+                                                                                                                                                     "properties":  {
+                                                                                                                                                                        "userId":  {
+                                                                                                                                                                                       "type":  "string",
+                                                                                                                                                                                       "minLength":  1
+                                                                                                                                                                                   }
+                                                                                                                                                                    },
+                                                                                                                                                     "required":  [
+                                                                                                                                                                      "userId"
+                                                                                                                                                                  ]
+                                                                                                                                                 },
+                                                                                                                                      "examples":  {
+                                                                                                                                                       "valid":  {
+                                                                                                                                                                     "value":  {
+                                                                                                                                                                                   "userId":  "67f0be5b5998de9765a2fa11"
+                                                                                                                                                                               }
+                                                                                                                                                                 }
+                                                                                                                                                   }
+                                                                                                                                  }
+                                                                                                         }
+                                                                                         },
+                                                                         "responses":  {
+                                                                                           "200":  {
+                                                                                                       "description":  "Member removed successfully",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipSuccessEnvelope"
+                                                                                                                                                           },
+                                                                                                                                                "examples":  {
+                                                                                                                                                                 "success":  {
+                                                                                                                                                                                 "value":  {
+                                                                                                                                                                                               "success":  true,
+                                                                                                                                                                                               "message":  "Member removed successfully",
+                                                                                                                                                                                               "data":  null
+                                                                                                                                                                                           }
+                                                                                                                                                                             }
+                                                                                                                                                             }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "400":  {
+                                                                                                       "description":  "Validation failure or owner-remove edge case",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           },
+                                                                                                                                                "examples":  {
+                                                                                                                                                                 "ownerRemove":  {
+                                                                                                                                                                                     "value":  {
+                                                                                                                                                                                                   "success":  false,
+                                                                                                                                                                                                   "message":  "Cannot remove the owner of the tenant"
+                                                                                                                                                                                               }
+                                                                                                                                                                                 }
+                                                                                                                                                             }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "401":  {
+                                                                                                       "description":  "Unauthorized",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "403":  {
+                                                                                                       "description":  "Forbidden role/membership",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   },
+                                                                                           "404":  {
+                                                                                                       "description":  "Tenant/membership not found",
+                                                                                                       "content":  {
+                                                                                                                       "application/json":  {
+                                                                                                                                                "schema":  {
+                                                                                                                                                               "$ref":  "#/components/schemas/MembershipErrorResponse"
+                                                                                                                                                           }
+                                                                                                                                            }
+                                                                                                                   }
+                                                                                                   }
+                                                                                       }
+                                                                     }
+                                                        }
+              }
+}

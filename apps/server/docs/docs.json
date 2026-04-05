@@ -1,0 +1,127 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "SheryAssets",
+  "colors": {
+    "primary": "#F59E0B",
+    "light": "#F59E0B",
+    "dark": "#D97706"
+  },
+  "favicon": "/favicon.png",
+  "api": {
+    "openapi": "swagger.json",
+    "playground": {
+      "display": "interactive"
+    },
+    "params": {
+      "expanded": "all"
+    }
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "getting-started",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "authentication",
+          "tenant",
+          "membership",
+          "apikeys",
+          "plans",
+          "billing",
+          "upload",
+          "pricing-and-roadmap"
+        ]
+      },
+      {
+        "group": "Developer Help",
+        "pages": [
+          "developer-onboarding-checklist",
+          "api-recipes",
+          "troubleshooting",
+          "search-index"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "root": "api-reference",
+        "pages": [
+          {
+            "group": "API Auth",
+            "openapi": {
+              "source": "swagger-auth.json",
+              "directory": "api/auth"
+            }
+          },
+          {
+            "group": "API Billing",
+            "openapi": {
+              "source": "swagger-billing.json",
+              "directory": "api/billing"
+            }
+          },
+          {
+            "group": "API Tenant",
+            "openapi": {
+              "source": "swagger-tenant.json",
+              "directory": "api/tenant"
+            }
+          },
+          {
+            "group": "API Membership",
+            "openapi": {
+              "source": "swagger-membership.json",
+              "directory": "api/membership"
+            }
+          },
+          {
+            "group": "API ApiKey",
+            "openapi": {
+              "source": "swagger-apikey.json",
+              "directory": "api/apikey"
+            }
+          },
+          {
+            "group": "API Plan",
+            "openapi": {
+              "source": "swagger-plan.json",
+              "directory": "api/plan"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:support@sheryassets.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "https://sheryassets.com/dashboard"
+    }
+  },
+  "contextual": {
+    "display": "header",
+    "options": [
+      "copy",
+      "chatgpt",
+      "claude"
+    ]
+  }
+}

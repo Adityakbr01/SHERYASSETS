@@ -1,0 +1,42 @@
+---
+title: API Keys Module
+description: API key generation, limits, revocation, and failure recovery
+---
+
+## What this module does
+
+API Keys module manages service credentials at tenant level.
+
+- Create key
+- List keys
+- Revoke key
+
+## Endpoints
+
+| Method | Endpoint                        | Auth     | Role        |
+| ------ | ------------------------------- | -------- | ----------- |
+| POST   | /api/v1/api-keys                | Required | owner/admin |
+| GET    | /api/v1/api-keys                | Required | owner/admin |
+| PATCH  | /api/v1/api-keys/{keyId}/revoke | Required | owner/admin |
+
+## Expected vs got
+
+| Expected           | What you got                         | Why it happens                  | How to fix                           |
+| ------------------ | ------------------------------------ | ------------------------------- | ------------------------------------ |
+| 201 key created    | 400 API key name is required         | Empty or missing name           | Send non-empty name                  |
+| 201 key created    | 403 PLAN_LIMIT_API_KEYS              | Plan key limit reached          | Upgrade plan or revoke unused keys   |
+| 200 keys list      | 401 Unauthorized                     | Missing or expired token        | Refresh/login and retry              |
+| 200 revoke success | 404 key not found or already revoked | Wrong keyId or duplicate revoke | Use active key id from list endpoint |
+
+## Important behavior
+
+- Raw key value appears only once at create time
+- keyHash is never returned from list endpoint
+- Revocation is irreversible
+
+## Quick fix checklist
+
+1. Store newly created raw API key securely
+2. Use tenant owner/admin token
+3. Verify active tenant context
+4. Re-check keyId before revoke

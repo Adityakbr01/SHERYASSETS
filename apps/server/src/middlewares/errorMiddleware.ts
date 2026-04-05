@@ -41,7 +41,8 @@ export const errorHandler = (
     errors: errors || [],
     ...(env.NODE_ENV === 'development' && {
       stack: err instanceof Error ? err.stack : 'No stack trace available',
-      detail: (err as any)?.error || (err as any)?.message,
+      detail:
+        (err as Record<string, unknown>)?.error || (err as Record<string, unknown>)?.message,
     }),
   })
 }

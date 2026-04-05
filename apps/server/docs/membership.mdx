@@ -1,0 +1,46 @@
+---
+title: Membership Module
+description: Invites, role access, expected responses, and troubleshooting
+---
+
+## What this module does
+
+Membership module controls team access per tenant.
+
+- Get my memberships
+- List tenant members
+- Invite user
+- Accept invite
+- Remove member
+
+## Endpoints
+
+| Method | Endpoint                           | Auth     | Role         |
+| ------ | ---------------------------------- | -------- | ------------ |
+| GET    | /api/v1/memberships/mine           | Required | Any          |
+| GET    | /api/v1/memberships/tenant-members | Required | owner/admin  |
+| POST   | /api/v1/memberships/invite         | Required | owner/admin  |
+| POST   | /api/v1/memberships/accept-invite  | Required | invited user |
+| POST   | /api/v1/memberships/remove-member  | Required | owner/admin  |
+
+## Expected vs got
+
+| Expected              | What you got                           | Why it happens                           | How to fix                                |
+| --------------------- | -------------------------------------- | ---------------------------------------- | ----------------------------------------- |
+| Invite success        | 429 sending invitations too fast       | Cooldown active                          | Wait and retry                            |
+| Invite success        | 400 already joined                     | User already in tenant                   | Do not re-invite active member            |
+| Accept invite success | 403 invitation sent to different email | Token email and logged-in email mismatch | Login with invited email account          |
+| Remove member success | 400 cannot remove owner                | Owner protection rule                    | Transfer ownership or remove another role |
+| Tenant member list    | 403 forbidden                          | Caller is member role only               | Use owner/admin account                   |
+
+## Quick fix checklist
+
+1. Confirm active tenant context
+2. Confirm role is owner or admin for admin operations
+3. Check invite token belongs to logged-in user email
+4. Retry after cooldown if rate limited
+
+<Warning>
+  Membership routes are tenant-scoped. If no active tenant is set, switch tenant before
+  invite/list/remove operations.
+</Warning>
