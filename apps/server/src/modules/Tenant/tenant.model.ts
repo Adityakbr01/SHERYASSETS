@@ -36,6 +36,15 @@ const tenantSchema: Schema<ITenant> = new Schema(
       lowercase: true,
       trim: true,
     },
+    razorpayCustomerId: {
+      type: String,
+    },
+    razorpaySubscriptionId: {
+      type: String,
+    },
+    subscriptionStatus: {
+      type: String,
+    },
   },
   { timestamps: true },
 )

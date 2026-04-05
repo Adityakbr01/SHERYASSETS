@@ -21,6 +21,7 @@
     "test:membership": "bun test src/__tests__/membership.test.ts --timeout 30000",
     "test:apikey": "bun test src/__tests__/apikey.test.ts --timeout 30000",
     "test:plan": "bun test src/__tests__/plan.test.ts --timeout 30000",
+    "test:billing": "bun test src/__tests__/billing.test.ts --timeout 30000",
     "test:middleware": "bun test src/__tests__/middleware.test.ts --timeout 30000"
   },
   "devDependencies": {
@@ -66,6 +67,7 @@
     "mongoose": "^9.3.3",
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
+    "razorpay": "^2.9.6",
     "resend": "^6.10.0",
     "tsconfig-paths": "^4.2.0",
     "uuid": "^13.0.0",

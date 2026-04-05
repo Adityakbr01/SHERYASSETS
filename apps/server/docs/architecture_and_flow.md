@@ -477,7 +477,7 @@ Emails are sent asynchronously using **BullMQ** + **Resend** to avoid blocking t
 
 ```mermaid
 flowchart LR
-    A["Service calls sendEmail()"] --> B["addEmailToQueue()"]
+    A["Service calls sendEmail()"] --> B["addAuthEmailToQueue()"]
     B --> C["BullMQ: email-queue"]
     C --> D["Email Worker picks up job"]
     D --> E["Resend API delivers email"]

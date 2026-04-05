@@ -13,9 +13,11 @@ type SendEmailData = {
   html: string
 }
 
-export const addEmailToQueue = async (data: SendEmailData): Promise<void> => {
-  await emailQueue.add('send-email', data, {
-    attempts: 3, // Retry up to 3 times
+export const AuthQueueName = "send-auth-email"
+
+export const addAuthEmailToQueue = async (data: SendEmailData): Promise<void> => {
+  await emailQueue.add(AuthQueueName, data, {
+    attempts: 3,
     backoff: {
       type: 'exponential',
       delay: 1000,

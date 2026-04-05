@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 
 import { logger } from '@/utils/logger'
-import { sendEmail } from '@/utils/sendEmail'
+import { sendAuthEmail } from '@/utils/sendAuthEmail'
 import { ApiError } from '@/utils/ApiError'
 import type { IUser, PublicUser } from '@/modules/User/user.type'
 import { env } from '@/configs/ENV'
@@ -158,7 +158,7 @@ const AuthService = {
       </div>
     `
 
-    await sendEmail({
+    await sendAuthEmail({
       to: normalizedEmail,
       subject: 'Your Registration OTP',
       html: htmlContent,
@@ -242,7 +242,7 @@ const AuthService = {
 
     // ─── Send Welcome Email (non-blocking) ───────────────────────────────
     try {
-      await sendEmail({
+      await sendAuthEmail({
         to: user.email,
         subject: 'Welcome to SheryAssets',
         html: getWelcomeEmailContent(user.name),
@@ -460,7 +460,7 @@ const AuthService = {
 
     const htmlContent = ResetPassword(user.name, env.FRONTEND_URL, jwtToken)
 
-    await sendEmail({
+    await sendAuthEmail({
       to: normalizedEmail,
       subject: 'Reset Password',
       html: htmlContent,

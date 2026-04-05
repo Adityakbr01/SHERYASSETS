@@ -1,5 +1,6 @@
 import { env } from '@/configs/ENV'
 import { redisConnection } from '@/configs/redis'
+import { AuthQueueName } from '@/queues/Auth.email.queue'
 import { logger } from '@/utils/logger'
 import { type Job, Worker } from 'bullmq'
 import { Resend } from 'resend'
@@ -20,7 +21,7 @@ const getResendClient = (): Resend | null => {
 }
 
 export const emailWorker = new Worker(
-  'email-queue',
+  AuthQueueName,
   async (job: Job<SendEmailData>) => {
     const { to, subject, html } = job.data
     const resend = getResendClient()

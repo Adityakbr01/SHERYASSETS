@@ -14,8 +14,10 @@ export type InviteEmailData = {
   inviteLink: string
 }
 
+export const membershipQueueName = 'send-invite-email'
+
 export const addMembershipInviteToQueue = async (data: InviteEmailData): Promise<void> => {
-  await membershipQueue.add('send-invite-email', data, {
+  await membershipQueue.add(membershipQueueName, data, {
     priority: 100, // Explicitly lower priority number
     attempts: 3,
     backoff: {

@@ -41,6 +41,10 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().default(''),
   REDIS_URL: z.string().default('redis://localhost:6379'),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
+
+  RAZORPAY_KEY_ID: z.string().default(''),
+  RAZORPAY_KEY_SECRET: z.string().default(''),
+  RAZORPAY_WEBHOOK_SECRET: z.string().default(''),
 })
 
 // 🔍 Validate

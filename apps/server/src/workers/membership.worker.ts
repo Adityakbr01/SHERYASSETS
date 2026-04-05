@@ -1,9 +1,9 @@
 import { env } from '@/configs/ENV'
 import { redisConnection } from '@/configs/redis'
+import { type InviteEmailData, membershipQueueName } from '@/queues/membership.queue'
 import { logger } from '@/utils/logger'
 import { type Job, Worker } from 'bullmq'
 import { Resend } from 'resend'
-import type { InviteEmailData } from '@/queues/membership.queue'
 
 const FROM_EMAIL = 'no-reply@edulaunch.shop'
 
@@ -25,7 +25,7 @@ const getInvitationEmailContent = (tenantName: string, role: string, inviteLink:
 `
 
 export const membershipWorker = new Worker(
-  'membership-queue',
+  membershipQueueName,
   async (job: Job<InviteEmailData>) => {
     const { email, tenantName, role, inviteLink } = job.data
     const resend = getResendClient()

@@ -5,6 +5,7 @@ import tenantRouter from '@/modules/Tenant/tenant.route'
 import membershipRouter from '@/modules/Membership/membership.route'
 import planRouter from '@/modules/Plan/plan.route'
 import apiKeyRouter from '@/modules/ApiKey/apikey.route'
+import billingRouter from '@/modules/Billing/billing.route'
 
 const router = Router()
 
@@ -20,5 +21,6 @@ router.use('/tenants', tenantRouter)
 router.use('/memberships', membershipRouter)
 router.use('/plans', planRouter)
 router.use('/api-keys', apiKeyRouter)
+router.use('/billing', billingRouter)
 
 export default router

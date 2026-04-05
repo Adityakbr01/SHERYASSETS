@@ -15,6 +15,9 @@ export interface ITenant extends Document {
   planId: Types.ObjectId
   status: TenantStatus
   billingEmail: string
+  razorpayCustomerId?: string
+  razorpaySubscriptionId?: string
+  subscriptionStatus?: string
   createdAt: Date
   updatedAt: Date
 }

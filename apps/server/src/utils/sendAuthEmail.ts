@@ -1,4 +1,4 @@
-import { addEmailToQueue } from '@/queues/email.queue'
+import { addAuthEmailToQueue } from '@/queues/Auth.email.queue'
 import { logger } from '@/utils/logger'
 
 type SendEmailOptions = {
@@ -7,13 +7,13 @@ type SendEmailOptions = {
   html: string
 }
 
-export const sendEmail = async ({
+export const sendAuthEmail = async ({
   to,
   subject,
   html,
 }: SendEmailOptions): Promise<void> => {
   try {
-    await addEmailToQueue({ to, subject, html })
+    await addAuthEmailToQueue({ to, subject, html })
     logger.info('Email added to queue successfully', {
       module: 'EMAIL',
       to,
