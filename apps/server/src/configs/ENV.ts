@@ -41,10 +41,22 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().default(''),
   REDIS_URL: z.string().default('redis://localhost:6379'),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
+  CDN_BASE_URL: z.string().url().default('https://cdn.edulaunch.shop'),
 
   RAZORPAY_KEY_ID: z.string().default(''),
   RAZORPAY_KEY_SECRET: z.string().default(''),
   RAZORPAY_WEBHOOK_SECRET: z.string().default(''),
+
+  // AWS S3 CONFIGURATION
+  AWS_ACCESS_KEY: z.string().default('fake_access_key'),
+  AWS_SECRET_KEY: z.string().default('fake_secret_key'),
+  AWS_REGION: z.string().default('fake_region'),
+  AWS_BUCKET_NAME: z.string().default('fake_bucket_name'),
+  AWS_S3_FORCE_PATH_STYLE: z.coerce.boolean().default(false),
+
+  // ASSET UPLOAD CONFIGURATION
+  ASSET_MAX_UPLOAD_BYTES: z.coerce.number().positive().default(25 * 1024 * 1024), // 25MB
+
 })
 
 // 🔍 Validate

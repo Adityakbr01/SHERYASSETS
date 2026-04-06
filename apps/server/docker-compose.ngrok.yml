@@ -1,0 +1,12 @@
+services:
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: sheryassets-ngrok
+    restart: unless-stopped
+    environment:
+      NGROK_AUTHTOKEN: 2FFCy8C9s3icAENmjMFKEhTKpIK_75jGghFn6h1wGuNtLbFP6
+    command: http host.docker.internal:5000 --log=stdout
+    ports:
+      - '4040:4040'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'

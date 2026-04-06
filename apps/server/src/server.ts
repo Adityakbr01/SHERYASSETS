@@ -3,6 +3,7 @@ import { connectDB, disconnectDB } from '@/lib/db'
 import { logger } from '@/utils/logger'
 import { AuthEmailWorker } from '@/workers/authEmail.worker'
 import { membershipWorker } from '@/workers/membership.worker'
+import { assetWorker } from '@/workers/asset.worker'
 import PlanService from '@/modules/Plan/plan.service'
 import app from './app'
 
@@ -28,6 +29,7 @@ const startServer = async () => {
         try {
           await AuthEmailWorker.close()
           await membershipWorker.close()
+          await assetWorker.close()
           await disconnectDB()
           logger.info('✅ Server closed gracefully')
           process.exit(0)
