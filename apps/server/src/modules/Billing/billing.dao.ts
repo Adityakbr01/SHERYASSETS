@@ -16,7 +16,7 @@ const BillingDAO = {
       tenantId,
       status: 'active',
       endDate: { $gt: new Date() },
-    })
+    }).populate('planId')
     return result
   },
 

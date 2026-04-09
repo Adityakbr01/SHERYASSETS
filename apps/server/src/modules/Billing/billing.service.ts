@@ -82,6 +82,11 @@ const BillingService = {
     return updatedSub
   },
 
+  async getActiveSubscription(tenantId: string) {
+    const subscription = await BillingDAO.findActiveSubscriptionByTenantId(tenantId)
+    return subscription
+  },
+
   async handleWebhookSuccess(orderId: string, paymentId: string) {
     const subscription = await BillingDAO.findByOrderId(orderId)
 

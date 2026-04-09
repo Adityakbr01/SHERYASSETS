@@ -8,6 +8,7 @@ import {
   Building,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
   Key,
   LayoutDashboard,
   LogOut,
@@ -19,7 +20,8 @@ import { Button } from '@/components/ui/button'
 const navItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Api Keys', href: '/dashboard/keys', icon: Key },
-  { name: "tenants", href: "/dashboard/tenants", icon: Building }
+  { name: "Tenants", href: "/dashboard/tenants", icon: Building },
+  { name: "Subscription", href: "/dashboard/subscription", icon: CreditCard }
 ]
 export function Sidebar() {
   const pathname = usePathname()

@@ -9,75 +9,92 @@ import type { IPlan, PlanCode } from './plan.type'
 const DEFAULT_PLANS: Array<{
   code: PlanCode
   name: string
+  description: string
   priceMonthly: number
+  priceYearly: number
   limits: IPlan['limits']
   features: IPlan['features']
+  variant: IPlan['variant']
+  highlightText?: string
 }> = [
-    {
-      code: 'basic',
-      name: 'Basic',
-      priceMonthly: 0,
-      limits: {
-        maxImages: 1000,
-        maxBandwidthGb: 5,
-        maxApiKeys: 2,
-        maxTransformations: 5000,
-      },
-      features: {
-        priorityProcessing: false,
-        customDomain: false,
-        eagerVariants: false,
-      },
+  {
+    code: 'free',
+    name: 'Free',
+    description: 'Perfect for individuals just getting started with basic needs.',
+    priceMonthly: 0,
+    priceYearly: 0,
+    limits: {
+      maxImages: 100,
+      maxBandwidthGb: 10,
+      maxApiKeys: 1,
+      maxTransformations: 500,
     },
-    {
-      code: 'pro',
-      name: 'Pro',
-      priceMonthly: 29,
-      limits: {
-        maxImages: 50000,
-        maxBandwidthGb: 100,
-        maxApiKeys: 10,
-        maxTransformations: 100000,
-      },
-      features: {
-        priorityProcessing: true,
-        customDomain: true,
-        eagerVariants: false,
-      },
+    variant: {
+      type: 'default',
+      background: 'linear-gradient(160deg, #ececec 0%, #e0e0e0 100%)',
     },
-    {
-      code: 'payg',
-      name: 'Pay As You Go',
-      priceMonthly: 0,
-      limits: {
-        maxImages: -1, // unlimited (-1 = no cap, billed by usage)
-        maxBandwidthGb: -1,
-        maxApiKeys: 20,
-        maxTransformations: -1,
-      },
-      features: {
-        priorityProcessing: true,
-        customDomain: true,
-        eagerVariants: true,
-      },
+    highlightText: 'Minimum Requirements:',
+    features: [
+      { text: '1 workspace user', included: true },
+      { text: '100 gross Objects', included: true },
+      { text: '10GB Storage space', included: true },
+      { text: 'Video / Audio Traffic', included: false },
+      { text: 'Advanced AI Access', included: false },
+    ],
+  },
+  {
+    code: 'starter',
+    name: 'Starter',
+    description: 'Great for small teams needing more storage and traffic.',
+    priceMonthly: 49,
+    priceYearly: 490,
+    limits: {
+      maxImages: 10000,
+      maxBandwidthGb: 1000,
+      maxApiKeys: 10,
+      maxTransformations: 100000,
     },
-    {
-      code: 'enterprise',
-      name: 'Enterprise',
-      priceMonthly: 299,
-      limits: {
-        maxImages: -1,
-        maxBandwidthGb: -1,
-        maxApiKeys: 100,
-        maxTransformations: -1,
-      },
-      features: {
-        priorityProcessing: true,
-        customDomain: true,
-        eagerVariants: true,
-      },
+    variant: {
+      type: 'gradient',
+      background:
+        'linear-gradient(145deg, #2d1b00 0%, #7d594b 30%, #ca855b 65%, #f4a261 100%)',
     },
-  ]
+    highlightText: 'Everything in Free, plus:',
+    features: [
+      { text: 'Up to 5 users', included: true },
+      { text: '10,000 gross Objects', included: true },
+      { text: '1TB Storage space', included: true },
+      { text: '100GB Video / Audio Traffic', included: true },
+      { text: 'Advanced AI Access', included: false },
+    ],
+  },
+  {
+    code: 'pro',
+    name: 'Pro',
+    description: 'For teams scaling fast with advanced workflows and integrations.',
+    priceMonthly: 149,
+    priceYearly: 1490,
+    limits: {
+      maxImages: 100000,
+      maxBandwidthGb: 5000,
+      maxApiKeys: 25,
+      maxTransformations: 1000000,
+    },
+    variant: {
+      type: 'gradient',
+      background:
+        'linear-gradient(145deg, #0d1b2a 0%, #1b4332 30%, #2d6a4f 60%, #52b788 100%)',
+    },
+    highlightText: 'Everything in Starter, plus:',
+    features: [
+      { text: 'Up to 25 users', included: true },
+      { text: '100,000 gross Objects', included: true },
+      { text: '5TB Storage space', included: true },
+      { text: '500GB Video / Audio Traffic', included: true },
+      { text: 'Advanced AI Access', included: true },
+    ],
+  },
+]
 
 const PlanService = {
   async getAll(): Promise<{ data: IPlan[]; isCache: boolean }> {
@@ -120,25 +137,29 @@ const PlanService = {
 
   /**
    * Seed default plans into the database.
-   * Called during server bootstrap — upserts so it's safe to run repeatedly.
+   * Restructures the database to support only Free, Starter, and Pro.
+   * Deletes all existing plans before seeding.
    */
   async seedDefaults(): Promise<void> {
+    // 1. Delete all existing plans
+    await PlanDAO.deleteAll()
+
+    // 2. Seed only the three specified plans
     for (const planDef of DEFAULT_PLANS) {
-      await PlanDAO.upsertByCode(planDef)
+      await PlanDAO.create(planDef)
     }
 
     await PlanCache.invalidateAll()
-    logger.info(`✅ Seeded ${DEFAULT_PLANS.length} default plans`)
+    logger.info(`✅ Restructured and seeded ${DEFAULT_PLANS.length} default plans`)
   },
 
   /**
    * Returns the default plan assigned to new tenants on registration.
    */
   async getDefaultPlan(): Promise<IPlan> {
-    const { data } = await this.getByCode('basic')
+    const { data } = await this.getByCode('free')
     return data
   },
-
 
   async create(planData: Partial<IPlan>): Promise<IPlan> {
     const plan = await PlanDAO.create(planData)
@@ -163,7 +184,6 @@ const PlanService = {
     await PlanCache.invalidateAll()
     return plan
   },
-
 }
 
 export default PlanService

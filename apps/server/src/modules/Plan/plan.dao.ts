@@ -17,9 +17,13 @@ const PlanDAO = {
   async upsertByCode(data: {
     code: PlanCode
     name: string
+    description: string
     priceMonthly: number
+    priceYearly: number
     limits: IPlan['limits']
     features: IPlan['features']
+    variant: IPlan['variant']
+    highlightText?: string
   }): Promise<IPlan> {
     return Plan.findOneAndUpdate(
       { code: data.code },
@@ -30,6 +34,10 @@ const PlanDAO = {
 
   async create(planData: Partial<IPlan>): Promise<IPlan> {
     return Plan.create(planData)
+  },
+
+  async deleteAll(): Promise<void> {
+    await Plan.deleteMany({})
   },
 
   async update(planId: string, planData: Partial<IPlan>): Promise<IPlan> {

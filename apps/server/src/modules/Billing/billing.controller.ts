@@ -68,6 +68,15 @@ const BillingController = {
     res.status(200).send('OK')
   }),
 
+  getActiveSubscription: asyncHandler(async (req: Request, res: Response) => {
+    const { tenantId } = req.params
+    const subscription = await BillingService.getActiveSubscription(tenantId!)
+
+    ApiResponse.success(res, {
+      message: 'Active subscription retrieved successfully',
+      data: subscription,
+    })
+  }),
 }
 
 export default BillingController

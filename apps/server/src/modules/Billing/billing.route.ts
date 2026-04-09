@@ -21,6 +21,11 @@ billingRouter.post(
   BillingController.verifyPayment
 )
 
+billingRouter.get(
+  '/active/:tenantId',
+  BillingController.getActiveSubscription
+)
+
 // 🧾 Create order
 billingRouter.post(
   '/subscribe/:planId',

@@ -2,8 +2,8 @@ import type { Document, Types } from 'mongoose'
 
 // ─── Enums ─────────────────────────────────────────────────────────────────────
 
-export const PLAN_CODES = ['basic', 'pro', 'payg', 'enterprise'] as const
-export type PlanCode = string
+export const PLAN_CODES = ['free', 'starter', 'pro'] as const
+export type PlanCode = (typeof PLAN_CODES)[number]
 
 // ─── Sub-interfaces ────────────────────────────────────────────────────────────
 
@@ -14,10 +14,14 @@ export interface PlanLimits {
   maxTransformations: number
 }
 
-export interface PlanFeatures {
-  priorityProcessing: boolean
-  customDomain: boolean
-  eagerVariants: boolean
+export interface PlanFeature {
+  text: string
+  included: boolean
+}
+
+export interface PlanVariant {
+  type: 'gradient' | 'default'
+  background: string
 }
 
 // ─── Main Interface ────────────────────────────────────────────────────────────
@@ -26,9 +30,13 @@ export interface IPlan extends Document {
   _id: Types.ObjectId
   code: PlanCode
   name: string
+  description: string
   priceMonthly: number
+  priceYearly: number
   limits: PlanLimits
-  features: PlanFeatures
+  features: PlanFeature[]
+  variant: PlanVariant
+  highlightText?: string
   createdAt: Date
   updatedAt: Date
 }

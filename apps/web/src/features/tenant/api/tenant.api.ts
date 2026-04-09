@@ -1,10 +1,12 @@
 import { apiClient } from '@/src/lib/api'
 export interface TenantInfo {
   tenantId: string
+  _id: string
   name: string
   slug: string
   role: string
   status: string
+  planId: string
 }
 export const tenantApi = {
   getMyTenants: async (): Promise<TenantInfo[]> => {

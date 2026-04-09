@@ -98,6 +98,17 @@
   --chart-3: #10B981;
   --chart-4: #F43F5E;
   --chart-5: #06B6D4;
+
+  /* Pricing card gradients */
+  --gradient-default: linear-gradient(160deg, #ececec 0%, #e0e0e0 100%);
+  --gradient-navy: linear-gradient(145deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #533483 100%);
+  --gradient-ocean: linear-gradient(145deg, #0d1b2a 0%, #1b4332 30%, #2d6a4f 60%, #52b788 100%);
+  --gradient-ember: linear-gradient(145deg, #2d1b00 0%, #7d594b 30%, #F75127 65%, #f4a261 100%);
+
+    /* Toggle */
+  --toggle-off: #d1d5db;
+  --toggle-on: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 100%);
+  --toggle-thumb: #ffffff;
 }
 
 @theme inline {
@@ -201,6 +212,19 @@
   --chart-3: #4ADE80;
   --chart-4: #FB7185;
   --chart-5: #22D3EE;
+
+  
+  /* Pricing card gradients — slightly brighter for dark bg */
+  --gradient-default: linear-gradient(160deg, #2a2a2a 0%, #222222 100%);
+  --gradient-navy: linear-gradient(145deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #533483 100%);
+  --gradient-ocean: linear-gradient(145deg, #0d1b2a 0%, #1b4332 30%, #2d6a4f 60%, #52b788 100%);
+  --gradient-ember: linear-gradient(145deg, #2d1b00 0%, #7d594b 30%, #F75127 65%, #f4a261 100%);
+
+  /* Toggle */
+  --toggle-off: #3f3f46;
+  --toggle-on: linear-gradient(135deg, #F75127 0%, #f4a261 100%);
+  --toggle-thumb: #ffffff;
+
 }
 
 @layer base {

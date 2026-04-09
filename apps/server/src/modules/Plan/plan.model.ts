@@ -13,7 +13,17 @@ const planSchema: Schema<IPlan> = new Schema(
       required: true,
       trim: true,
     },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     priceMonthly: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    priceYearly: {
       type: Number,
       required: true,
       min: 0,
@@ -24,10 +34,19 @@ const planSchema: Schema<IPlan> = new Schema(
       maxApiKeys: { type: Number, required: true },
       maxTransformations: { type: Number, required: true },
     },
-    features: {
-      priorityProcessing: { type: Boolean, default: false },
-      customDomain: { type: Boolean, default: false },
-      eagerVariants: { type: Boolean, default: false },
+    features: [
+      {
+        text: { type: String, required: true },
+        included: { type: Boolean, required: true },
+      },
+    ],
+    variant: {
+      type: { type: String, enum: ['gradient', 'default'], required: true },
+      background: { type: String, required: true },
+    },
+    highlightText: {
+      type: String,
+      trim: true,
     },
   },
   { timestamps: true },
