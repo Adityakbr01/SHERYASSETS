@@ -1,17 +1,15 @@
-import { useEffect, useState } from 'react';
-import { dashboardApi } from '../api/dashboard.api';export function useDashboardStats() {
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const data = await dashboardApi.getStats();
-        setStats(data);
-      } catch (error) {
-        console.error('Error fetching dashboard stats', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);  return { stats, loading };
+import { useQuery } from '@tanstack/react-query'
+import { dashboardApi } from '../api/dashboard.api'
+export function useDashboardStats() {
+  const query = useQuery({
+    queryKey: ['dashboard', 'stats'],
+    queryFn: () => dashboardApi.getStats(),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  })
+  return {
+    stats: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error,
+    refetch: query.refetch,
+  }
 }

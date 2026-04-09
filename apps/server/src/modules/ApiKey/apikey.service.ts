@@ -62,8 +62,20 @@ const ApiKeyService = {
   /**
    * List all API keys for a tenant (hashes excluded).
    */
-  async listByTenant(tenantId: string): Promise<IApiKey[]> {
-    return ApiKeyDAO.findByTenant(tenantId)
+  async listByTenant(
+    tenantId: string,
+    options?: { status?: string; search?: string; page?: number; limit?: number },
+  ): Promise<{ keys: IApiKey[]; total: number; page: number; limit: number; totalPages: number }> {
+    const page = options?.page || 1
+    const limit = options?.limit || 10
+    const { keys, total } = await ApiKeyDAO.findByTenant(tenantId, options)
+    return {
+      keys,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    }
   },
 
   /**

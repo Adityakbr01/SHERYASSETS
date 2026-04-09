@@ -1,6 +1,8 @@
 import React from 'react';
 import { Sidebar } from './sidebar';
-import { Topbar } from './topbar';export function DashboardLayout({ children }: { children: React.ReactNode }) {
+import { Topbar } from './topbar';
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  
   return (
     <div className="flex h-screen bg-background overflow-hidden selection:bg-primary/20">
       <Sidebar />

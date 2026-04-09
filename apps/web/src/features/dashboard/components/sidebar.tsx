@@ -1,7 +1,9 @@
-'use client'import React from 'react'
+'use client'
+import React from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,13 +14,22 @@ import {
 import { useDashboardStore } from '../store/useDashboardStore'
 import { useAuthStore } from '../../auth/hooks/useAuthStore'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'const navItems = [
+import { Button } from '@/components/ui/button'
+const navItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Api Keys', href: '/dashboard/keys', icon: Key },
-]export function Sidebar() {
+]
+export function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const queryClient = useQueryClient()
   const { sidebarOpen, toggleSidebar } = useDashboardStore()
-  const logout = useAuthStore((state) => state.logout)  return (
+  const zustandLogout = useAuthStore((state) => state.logout)  const handleLogout = () => {
+    zustandLogout()
+    queryClient.clear()
+    router.push('/login')
+  }
+  return (
     <motion.aside
       className="relative flex flex-col h-screen bg-background/50 backdrop-blur-xl border-r border-border drop-shadow-sm sticky top-0 z-40 transition-all duration-300"
       initial={{ width: 240 }}
@@ -66,7 +77,7 @@ import { Button } from '@/components/ui/button'const navItems = [
               <motion.div
                 whileTap={{ scale: 0.98 }}
                 className={cn(
-                  'flex w-full items-center px-3 py-2.5 rounded-xl transition-colors',
+                  'flex w-full  items-center px-3 py-2.5 rounded-full transition-colors',
                   isActive
                     ? 'bg-primary/10 text-primary font-medium'
                     : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground',
@@ -74,7 +85,7 @@ import { Button } from '@/components/ui/button'const navItems = [
                 )}
               >
                 <item.icon
-                  className={cn('w-5 h-5 flex-shrink-0', isActive ? 'text-primary' : '')}
+                  className={cn('w-5 h-5 shrink-0', isActive ? 'text-primary' : '')}
                 />
                 <AnimatePresence>
                   {sidebarOpen && (
@@ -98,7 +109,7 @@ import { Button } from '@/components/ui/button'const navItems = [
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={logout}
+          onClick={handleLogout}
           className={cn(
             'flex w-full items-center px-3 py-2.5 text-rose-500 rounded-xl hover:bg-rose-500/10 transition-colors cursor-pointer',
             !sidebarOpen && 'justify-center',

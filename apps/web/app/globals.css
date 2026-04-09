@@ -5,6 +5,40 @@
 @import "shadcn/tailwind.css";
 
 
+/* ---------------- FONTS ---------------- */
+
+@font-face {
+  font-family: "NeueMachina";
+  src: url("/fonts/NeueMachina-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "NeueMachina";
+  src: url("/fonts/NeueMachina-Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "HelveticaNow";
+  src: url("/fonts/HelveticaNowDisplay-Regular.woff2") format("woff2");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "HelveticaNow";
+  src: url("/fonts/HelveticaNowDisplay-Bold.woff2") format("woff2");
+  font-weight: 700;
+}
+
+/* ---------------- THEME ---------------- */
+
+@theme {
+  --font-display: "NeueMachina", sans-serif;
+  --font-body: "HelveticaNow", sans-serif;
+}
+
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -185,4 +219,61 @@
 
 button {
   cursor: pointer;
+}
+
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-body);
+}
+
+/* Custom CSS */
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+
+
+.apple-border-shine {
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.apple-border-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Stretches exactly to the edges of the parent */
+  border-radius: inherit;
+  /* Automatically matches the parent's rounded corners! */
+  padding: 1px;
+  /* This controls the thickness of your border */
+
+  /* The top-left and bottom-right shine colors */
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.05) 75%,
+      rgba(255, 255, 255, 0.5) 100%);
+  /* Modern CSS Masking to cut out the inside, leaving ONLY the border */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  /* Ensures you can still click the button underneath the border */
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+/* Hover: smoothly reveal the border shine via opacity */
+.apple-border-shine:hover::after {
+  opacity: 1;
 }

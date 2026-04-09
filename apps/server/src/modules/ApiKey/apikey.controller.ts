@@ -38,11 +38,29 @@ const ApiKeyController = {
       throw new ApiError({ statusCode: 400, message: 'Tenant context required' })
     }
 
-    const keys = await ApiKeyService.listByTenant(req.tenant._id.toString())
+    const {
+      page = '1',
+      limit = '10',
+      status,
+      search,
+    } = req.query as Record<string, string>
+
+    const result = await ApiKeyService.listByTenant(req.tenant._id.toString(), {
+      page: Math.max(1, parseInt(page, 10) || 1),
+      limit: Math.min(50, Math.max(1, parseInt(limit, 10) || 10)),
+      status,
+      search,
+    })
 
     ApiResponse.success(res, {
       message: 'API keys fetched successfully',
-      data: keys,
+      data: result.keys,
+      meta: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      },
     })
   }),
 

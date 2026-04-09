@@ -19,8 +19,26 @@ const ApiKeyDAO = {
     return ApiKey.findOne({ prefix, keyHash, status: 'active' })
   },
 
-  async findByTenant(tenantId: string): Promise<IApiKey[]> {
-    return ApiKey.find({ tenantId }).select('-keyHash').sort({ createdAt: -1 })
+  async findByTenant(
+    tenantId: string,
+    options?: { status?: string; search?: string; page?: number; limit?: number },
+  ): Promise<{ keys: IApiKey[]; total: number }> {
+    const { status, search, page = 1, limit = 10 } = options || {}
+
+    const filter: Record<string, unknown> = { tenantId }
+    if (status && status !== 'all') filter.status = status
+    if (search) filter.name = { $regex: search, $options: 'i' }
+
+    const [keys, total] = await Promise.all([
+      ApiKey.find(filter)
+        .select('-keyHash')
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      ApiKey.countDocuments(filter),
+    ])
+
+    return { keys, total }
   },
 
   async countActiveByTenant(tenantId: string): Promise<number> {

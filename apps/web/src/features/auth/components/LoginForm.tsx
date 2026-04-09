@@ -1,17 +1,21 @@
-'use client'import * as React from 'react'
+'use client'
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { LoginFormValues } from '../forms/auth.schema';
+import { useQueryClient } from '@tanstack/react-query'
+import type { LoginFormValues } from '../forms/auth.schema'
 import { loginSchema } from '../forms/auth.schema'
 import { authApi } from '../api/auth.api'
 import { useAuthStore } from '../hooks/useAuthStore'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { AlertCircle, GitForkIcon, Loader2 } from 'lucide-react'import { Button } from '@/components/ui/button'
+import { AlertCircle, GitForkIcon, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'export function LoginForm() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { setToken, setUser } = useAuthStore()
   const [error, setError] = React.useState('')
   const [isGithubLoading, setIsGithubLoading] = React.useState(false)  const {
@@ -26,6 +30,8 @@ import { Label } from '@/components/ui/label'export function LoginForm() {
       const res = await authApi.login(data)      if (res?.data?.accessToken) {
         setToken(res.data.accessToken)
         setUser(res.data.user || null)
+        // Invalidate the user query so dashboard picks up the session
+        queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
         router.push('/dashboard')
       } else {
         setError('Invalid response from server')
