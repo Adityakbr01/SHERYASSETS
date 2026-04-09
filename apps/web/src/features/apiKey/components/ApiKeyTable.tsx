@@ -53,7 +53,7 @@ export function ApiKeyTable({
 }: ApiKeyTableProps) {
   const isFirstLoad = loading && keys.length === 0
   return (
-    <div className="border border-border/60 rounded-2xl overflow-hidden bg-card/50 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+    <div className="border border-border/60 rounded-2xl overflow-hidden bg-card/50 ">
       {/* Toolbar: Search + Status Filter */}
       <div className="px-5 py-3.5 border-b border-border/40 bg-muted/10 flex flex-col sm:flex-row items-start sm:items-center gap-3">
         {/* Search */}

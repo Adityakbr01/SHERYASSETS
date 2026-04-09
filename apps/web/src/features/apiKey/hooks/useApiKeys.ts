@@ -10,7 +10,7 @@ export function useApiKeys(initialParams?: ApiKeyListParams) {
   const [mutationError, setMutationError] = useState<string | null>(null)
   const [params, setParams] = useState<ApiKeyListParams>({
     page: 1,
-    limit: 10,
+    limit: 5,
     status: 'all',
     search: '',
     ...initialParams,
@@ -59,7 +59,7 @@ export function useApiKeys(initialParams?: ApiKeyListParams) {
   const setPage = (page: number) => setParams((p) => ({ ...p, page }))
   const setSearch = (search: string) => setParams((p) => ({ ...p, search, page: 1 }))
   const setStatus = (status: string) => setParams((p) => ({ ...p, status, page: 1 }))
-  const meta = listQuery.data?.meta ?? { total: 0, page: 1, limit: 10, totalPages: 1 }
+  const meta = listQuery.data?.meta ?? { total: 0, page: 1, limit: 5, totalPages: 1 }
   return {
     keys: listQuery.data?.data ?? [],
     loading: listQuery.isLoading,
