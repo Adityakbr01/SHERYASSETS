@@ -7,6 +7,7 @@ import type { IUser, PublicUser } from '@/modules/User/user.type'
 import { env } from '@/configs/ENV'
 import { redisConnection } from '@/configs/redis'
 
+import { checkAndSetCooldown } from '@/utils/cooldown.util'
 import AuthDAO from './auth.dao'
 import TenantDAO from '@/modules/Tenant/tenant.dao'
 import TenantService from '@/modules/Tenant/tenant.service'
@@ -134,21 +135,16 @@ const AuthService = {
       })
     }
 
-    const cooldownKey = `cooldown:register:${normalizedEmail}`
-    const hasCooldown = await redisConnection.get(cooldownKey)
-
-    if (hasCooldown) {
-      throw new ApiError({
-        statusCode: 429,
-        message: 'Please wait before requesting another OTP',
-      })
-    }
+    await checkAndSetCooldown({
+      key: `cooldown:register:${normalizedEmail}`,
+      ttl: 60,
+      message: 'Please wait before requesting another OTP',
+    })
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
     const otpKey = `otp:register:${normalizedEmail}`
     await redisConnection.set(otpKey, otp, 'EX', 300)
-    await redisConnection.set(cooldownKey, '1', 'EX', 60)
 
     const htmlContent = `
       <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111;">
@@ -453,6 +449,12 @@ const AuthService = {
         message: 'User not found',
       })
     }
+
+    await checkAndSetCooldown({
+      key: `cooldown:forgot-password:${normalizedEmail}`,
+      ttl: 60,
+      message: 'Please wait before requesting another password reset email',
+    })
 
     const jwtToken = jwt.sign({ userId: user._id.toString() }, env.JWT_SECRET, {
       expiresIn: '5m',

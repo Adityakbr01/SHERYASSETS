@@ -8,7 +8,7 @@ export function useCurrentUser() {
   const query = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: () => authApi.me(),
-    enabled: Boolean(token),
+    enabled: true, // Attempt /me to allow automatic bootstrap via refresh cookie
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
@@ -18,15 +18,6 @@ export function useCurrentUser() {
       setUser(query.data.data)
     }
   }, [query.data, setUser])
-  // If the /me call fails with 401, the token is stale → logout
-  useEffect(() => {
-    if (query.error) {
-      const status = (query.error as any)?.response?.status
-      if (status === 401 || status === 403) {
-        logout()
-      }
-    }
-  }, [query.error, logout])
   return {
     user: query.data?.data ?? null,
     isLoading: query.isLoading && Boolean(token),

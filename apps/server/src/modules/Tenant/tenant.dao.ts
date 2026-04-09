@@ -21,7 +21,7 @@ const TenantDAO = {
   },
 
   async findBySlug(slug: string): Promise<ITenant | null> {
-    return Tenant.findOne({ slug })
+    return Tenant.findOne({ slug }).populate('planId')
   },
 
   async findByOwner(ownerUserId: string): Promise<ITenant[]> {

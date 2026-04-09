@@ -255,7 +255,7 @@ html {
   /* This controls the thickness of your border */
 
   /* The top-left and bottom-right shine colors */
-  background: linear-gradient(135deg,
+  background: linear-gradient(345deg,
       rgba(255, 255, 255, 0.9) 0%,
       rgba(255, 255, 255, 0.05) 25%,
       rgba(255, 255, 255, 0.05) 75%,

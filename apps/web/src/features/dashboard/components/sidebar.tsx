@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useQueryClient } from '@tanstack/react-query'
 import {
+  Building,
   ChevronLeft,
   ChevronRight,
   Key,
@@ -18,13 +19,15 @@ import { Button } from '@/components/ui/button'
 const navItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Api Keys', href: '/dashboard/keys', icon: Key },
+  { name: "tenants", href: "/dashboard/tenants", icon: Building }
 ]
 export function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const queryClient = useQueryClient()
   const { sidebarOpen, toggleSidebar } = useDashboardStore()
-  const zustandLogout = useAuthStore((state) => state.logout)  const handleLogout = () => {
+  const zustandLogout = useAuthStore((state) => state.logout)
+  const handleLogout = () => {
     zustandLogout()
     queryClient.clear()
     router.push('/login')
