@@ -1,4 +1,4 @@
-﻿{
+{
   "openapi": "3.0.0",
   "info": {
     "title": "SHERYASSETS API",
@@ -1043,6 +1043,469 @@
         ]
       },
       "PlanSuccessEnvelope": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "nullable": true
+          },
+          "meta": {
+            "nullable": true
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
+      },
+      "AssetErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "message": {
+            "type": "string",
+            "example": "Asset not found"
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "nullable": true
+            }
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
+      },
+      "AssetUrls": {
+        "type": "object",
+        "properties": {
+          "original": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://cdn.sheryassets.com/tenant-a/products/shoe-1/original.png"
+          },
+          "mobile": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://cdn.sheryassets.com/tenant-a/products/shoe-1/mobile.webp"
+          },
+          "tablet": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://cdn.sheryassets.com/tenant-a/products/shoe-1/tablet.webp"
+          },
+          "desktop": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://cdn.sheryassets.com/tenant-a/products/shoe-1/desktop.webp"
+          }
+        },
+        "required": [
+          "original"
+        ]
+      },
+      "AssetRecord": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "67f0be5b5998de9765a2fca1"
+          },
+          "tenantId": {
+            "type": "string",
+            "example": "67f0be5b5998de9765a2f2e1"
+          },
+          "imageId": {
+            "type": "string",
+            "example": "2a8784b4-5ee1-4f9b-a7f8-7ca9a67a84b6"
+          },
+          "path": {
+            "type": "string",
+            "example": "products/shoes"
+          },
+          "originalKey": {
+            "type": "string",
+            "example": "67f0be5b5998de9765a2f2e1/products/shoes/2a8784b4/original.png"
+          },
+          "fileName": {
+            "type": "string",
+            "example": "shoe-1.png"
+          },
+          "size": {
+            "type": "integer",
+            "example": 482934
+          },
+          "format": {
+            "type": "string",
+            "example": "png"
+          },
+          "mimeType": {
+            "type": "string",
+            "example": "image/png"
+          },
+          "width": {
+            "type": "integer",
+            "example": 1920
+          },
+          "height": {
+            "type": "integer",
+            "example": 1080
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processing",
+              "ready",
+              "failed",
+              "deleted"
+            ],
+            "example": "processing"
+          },
+          "urls": {
+            "$ref": "#/components/schemas/AssetUrls"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "_id",
+          "tenantId",
+          "imageId",
+          "path",
+          "originalKey",
+          "fileName",
+          "size",
+          "format",
+          "status",
+          "urls"
+        ]
+      },
+      "AssetPagination": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "example": 1
+          },
+          "limit": {
+            "type": "integer",
+            "example": 25
+          },
+          "total": {
+            "type": "integer",
+            "example": 132
+          },
+          "totalPages": {
+            "type": "integer",
+            "example": 6
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "totalPages"
+        ]
+      },
+      "AssetSuccessEnvelope": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "nullable": true
+          },
+          "meta": {
+            "nullable": true
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
+      },
+      "AssetUploadForm": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "Binary file stream in multipart field named file"
+          },
+          "folder": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "products/shoes"
+          },
+          "path": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "legacy/folder"
+          },
+          "metadata": {
+            "type": "string",
+            "example": "{\"sku\":\"shoe-101\",\"source\":\"catalog-sync\"}",
+            "description": "JSON-stringified object. Parsed and saved under metadata.custom."
+          }
+        }
+      },
+      "UsageErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "message": {
+            "type": "string",
+            "example": "Tenant context required"
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "nullable": true
+            }
+          }
+        },
+        "required": [
+          "success",
+          "message"
+        ]
+      },
+      "UsageRecord": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "67f0be5b5998de9765a2fda2"
+          },
+          "tenantId": {
+            "type": "string",
+            "example": "67f0be5b5998de9765a2f2e1"
+          },
+          "month": {
+            "type": "string",
+            "example": "2026-04"
+          },
+          "uploadCount": {
+            "type": "integer",
+            "example": 12
+          },
+          "transformationCount": {
+            "type": "integer",
+            "example": 142
+          },
+          "bandwidthBytes": {
+            "type": "integer",
+            "example": 15728640
+          },
+          "originFetchCount": {
+            "type": "integer",
+            "example": 32
+          },
+          "cacheHitCount": {
+            "type": "integer",
+            "example": 211
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "_id",
+          "tenantId",
+          "month",
+          "uploadCount",
+          "transformationCount",
+          "bandwidthBytes",
+          "originFetchCount",
+          "cacheHitCount"
+        ]
+      },
+      "UsageMonthlySummary": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "example": "2026-04"
+          },
+          "usage": {
+            "type": "object",
+            "properties": {
+              "uploadCount": {
+                "type": "integer",
+                "example": 12
+              },
+              "transformationCount": {
+                "type": "integer",
+                "example": 142
+              },
+              "bandwidthBytes": {
+                "type": "integer",
+                "example": 15728640
+              },
+              "bandwidthGb": {
+                "type": "number",
+                "example": 0.0146
+              },
+              "originFetchCount": {
+                "type": "integer",
+                "example": 32
+              },
+              "cacheHitCount": {
+                "type": "integer",
+                "example": 211
+              }
+            },
+            "required": [
+              "uploadCount",
+              "transformationCount",
+              "bandwidthBytes",
+              "bandwidthGb",
+              "originFetchCount",
+              "cacheHitCount"
+            ]
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "maxImages": {
+                "type": "integer",
+                "example": 1000
+              },
+              "maxTransformations": {
+                "type": "integer",
+                "example": 10000
+              },
+              "maxBandwidthGb": {
+                "type": "number",
+                "example": 50
+              }
+            },
+            "required": [
+              "maxImages",
+              "maxTransformations",
+              "maxBandwidthGb"
+            ]
+          },
+          "utilization": {
+            "type": "object",
+            "properties": {
+              "imagesPercent": {
+                "type": "number",
+                "nullable": true,
+                "example": 1.2
+              },
+              "transformationsPercent": {
+                "type": "number",
+                "nullable": true,
+                "example": 1.42
+              },
+              "bandwidthPercent": {
+                "type": "number",
+                "nullable": true,
+                "example": 0.03
+              }
+            },
+            "required": [
+              "imagesPercent",
+              "transformationsPercent",
+              "bandwidthPercent"
+            ]
+          }
+        },
+        "required": [
+          "month",
+          "usage",
+          "limits",
+          "utilization"
+        ]
+      },
+      "UsageTotals": {
+        "type": "object",
+        "properties": {
+          "uploadCount": {
+            "type": "integer",
+            "example": 120
+          },
+          "transformationCount": {
+            "type": "integer",
+            "example": 2210
+          },
+          "bandwidthBytes": {
+            "type": "integer",
+            "example": 788529152
+          },
+          "bandwidthGb": {
+            "type": "number",
+            "example": 0.7346
+          },
+          "originFetchCount": {
+            "type": "integer",
+            "example": 403
+          },
+          "cacheHitCount": {
+            "type": "integer",
+            "example": 2011
+          }
+        },
+        "required": [
+          "uploadCount",
+          "transformationCount",
+          "bandwidthBytes",
+          "bandwidthGb",
+          "originFetchCount",
+          "cacheHitCount"
+        ]
+      },
+      "UsageSuccessEnvelope": {
         "type": "object",
         "properties": {
           "success": {
@@ -3860,6 +4323,1080 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PlanErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assets/upload": {
+      "post": {
+        "summary": "Upload an asset with API key",
+        "description": "Machine-to-machine multipart upload endpoint. Accepts file stream plus optional folder/path and metadata.",
+        "tags": [
+          "Asset"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetUploadForm"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Asset accepted and queued for processing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/AssetSuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/AssetRecord"
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "cdn": {
+                                  "$ref": "#/components/schemas/AssetUrls"
+                                }
+                              },
+                              "required": [
+                                "cdn"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed multipart fields or missing file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                },
+                "examples": {
+                  "missingFile": {
+                    "value": {
+                      "success": false,
+                      "message": "File is required in form field \"file\""
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, invalid, or expired API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Tenant inactive or plan image limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                },
+                "examples": {
+                  "limitReached": {
+                    "value": {
+                      "success": false,
+                      "message": "Image limit reached (1000 assets for Pro plan)",
+                      "errorCode": "PLAN_LIMIT_IMAGES"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Uploaded file exceeds ASSET_MAX_UPLOAD_BYTES",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Non-multipart payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Upload persisted but queue processing failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assets": {
+      "get": {
+        "summary": "List tenant assets",
+        "tags": [
+          "Asset"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 24,
+              "maxLength": 24,
+              "example": "67f0be5b5998de9765a2f2e1"
+            },
+            "required": false,
+            "name": "x-tenant-id",
+            "in": "header",
+            "description": "Tenant ObjectId. Optional when access token already contains activeTenantId, required otherwise."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assets fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/AssetSuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/AssetRecord"
+                          }
+                        },
+                        "meta": {
+                          "$ref": "#/components/schemas/AssetPagination"
+                        }
+                      },
+                      "required": [
+                        "data",
+                        "meta"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid pagination query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Tenant/membership restriction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assets/{assetId}": {
+      "get": {
+        "summary": "Get asset by id",
+        "tags": [
+          "Asset"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "assetId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 24,
+              "maxLength": 24,
+              "example": "67f0be5b5998de9765a2f2e1"
+            },
+            "required": false,
+            "name": "x-tenant-id",
+            "in": "header",
+            "description": "Tenant ObjectId. Optional when access token already contains activeTenantId, required otherwise."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Asset fetched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/AssetSuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AssetRecord"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid assetId",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Asset not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Soft delete asset",
+        "description": "Owner/admin only endpoint. Marks asset status as deleted.",
+        "tags": [
+          "Asset"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "assetId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 24,
+              "maxLength": 24,
+              "example": "67f0be5b5998de9765a2f2e1"
+            },
+            "required": false,
+            "name": "x-tenant-id",
+            "in": "header",
+            "description": "Tenant ObjectId. Optional when access token already contains activeTenantId, required otherwise."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Asset deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/AssetSuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AssetRecord"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid assetId",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden: requires owner/admin role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Asset not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assets/{assetId}/status": {
+      "patch": {
+        "summary": "Update asset status",
+        "description": "Owner/admin only endpoint to update processing state.",
+        "tags": [
+          "Asset"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "assetId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 24,
+              "maxLength": 24,
+              "example": "67f0be5b5998de9765a2f2e1"
+            },
+            "required": false,
+            "name": "x-tenant-id",
+            "in": "header",
+            "description": "Tenant ObjectId. Optional when access token already contains activeTenantId, required otherwise."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "processing",
+                      "ready",
+                      "failed",
+                      "deleted"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/AssetSuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/AssetRecord"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden: requires owner/admin role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Asset not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/usage/track/upload": {
+      "post": {
+        "summary": "Track upload usage",
+        "description": "Machine-to-machine endpoint that increments upload counters and bandwidth.",
+        "tags": [
+          "Usage"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sizeBytes": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "month": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                  }
+                },
+                "required": [
+                  "sizeBytes"
+                ]
+              },
+              "examples": {
+                "valid": {
+                  "value": {
+                    "sizeBytes": 2048,
+                    "month": "2026-04"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Upload usage tracked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UsageSuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UsageRecord"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure or invalid month format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/usage/track/delivery": {
+      "post": {
+        "summary": "Track delivery usage",
+        "description": "Tracks bandwidth, cache status, and transformation counters for delivery traffic.",
+        "tags": [
+          "Usage"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bandwidthBytes": {
+                    "type": "integer",
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "cacheStatus": {
+                    "type": "string",
+                    "enum": [
+                      "hit",
+                      "miss"
+                    ]
+                  },
+                  "transformationCount": {
+                    "type": "integer",
+                    "nullable": true,
+                    "minimum": 0
+                  },
+                  "month": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                  }
+                },
+                "required": [
+                  "bandwidthBytes"
+                ]
+              },
+              "examples": {
+                "cacheHit": {
+                  "value": {
+                    "bandwidthBytes": 4096,
+                    "cacheStatus": "hit",
+                    "transformationCount": 2,
+                    "month": "2026-04"
+                  }
+                },
+                "cacheMiss": {
+                  "value": {
+                    "bandwidthBytes": 1024,
+                    "cacheStatus": "miss",
+                    "transformationCount": 1,
+                    "month": "2026-04"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Delivery usage tracked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UsageSuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UsageRecord"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure or invalid month format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing/invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/usage/monthly": {
+      "get": {
+        "summary": "Get monthly usage summary",
+        "description": "Owner/admin analytics endpoint including current month usage, limits, and utilization.",
+        "tags": [
+          "Usage"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+            },
+            "required": false,
+            "name": "month",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 24,
+              "maxLength": 24,
+              "example": "67f0be5b5998de9765a2f2e1"
+            },
+            "required": false,
+            "name": "x-tenant-id",
+            "in": "header",
+            "description": "Tenant ObjectId. Optional when access token already contains activeTenantId, required otherwise."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Monthly usage summary fetched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UsageSuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UsageMonthlySummary"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden: requires owner/admin role in tenant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/usage/history": {
+      "get": {
+        "summary": "Get monthly usage history",
+        "description": "Returns recent monthly usage rows for charts and trend analysis.",
+        "tags": [
+          "Usage"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 24,
+              "default": 6
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 24,
+              "maxLength": 24,
+              "example": "67f0be5b5998de9765a2f2e1"
+            },
+            "required": false,
+            "name": "x-tenant-id",
+            "in": "header",
+            "description": "Tenant ObjectId. Optional when access token already contains activeTenantId, required otherwise."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usage history fetched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UsageSuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/UsageRecord"
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden: requires owner/admin role in tenant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/usage/totals": {
+      "get": {
+        "summary": "Get all-time usage totals",
+        "description": "Aggregated counters across all tracked months for tenant dashboards.",
+        "tags": [
+          "Usage"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 24,
+              "maxLength": 24,
+              "example": "67f0be5b5998de9765a2f2e1"
+            },
+            "required": false,
+            "name": "x-tenant-id",
+            "in": "header",
+            "description": "Tenant ObjectId. Optional when access token already contains activeTenantId, required otherwise."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usage totals fetched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/UsageSuccessEnvelope"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "$ref": "#/components/schemas/UsageTotals"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden: requires owner/admin role in tenant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageErrorResponse"
                 }
               }
             }

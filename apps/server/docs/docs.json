@@ -1,0 +1,71 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Shery",
+  "public": true,
+  "colors": {
+    "primary": "#F59E0B",
+    "light": "#F59E0B",
+    "dark": "#D97706"
+  },
+  "api": {
+    "playground": {
+      "display": "interactive"
+    },
+    "params": {
+      "expanded": "all"
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Quickstart",
+        "href": "/openapi/modules/quickstart"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Open API Reference",
+      "href": "/openapi/modules/api-reference"
+    }
+  },
+  "contextual": {
+    "display": "header",
+    "options": [
+      "copy",
+      "chatgpt",
+      "claude"
+    ]
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "openapi/modules/introduction",
+          "openapi/modules/quickstart"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "root": "openapi/modules/api-reference",
+        "pages": [
+          {
+            "group": "Authentication",
+            "openapi": {
+              "source": "openapi/modules/auth/swagger-auth.json",
+              "directory": "api/auth"
+            }
+          },
+          {
+            "group": "Assets & Uploads",
+            "openapi": {
+              "source": "openapi/modules/asset/swagger-asset.json",
+              "directory": "api/asset"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

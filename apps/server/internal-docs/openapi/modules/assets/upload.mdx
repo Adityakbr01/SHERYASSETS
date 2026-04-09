@@ -1,0 +1,82 @@
+---
+title: Upload
+description: API-key based upload route, multipart contract, and asset lifecycle
+---
+
+## Route map
+
+| Method | Endpoint                    | Auth              | Purpose                              |
+| ------ | --------------------------- | ----------------- | ------------------------------------ |
+| POST   | /api/v1/assets/upload       | x-api-key         | Upload original file and queue work  |
+| GET    | /api/v1/assets              | Bearer/Cookie JWT | List tenant assets                   |
+| GET    | /api/v1/assets/{assetId}    | Bearer/Cookie JWT | Get one asset                        |
+| PATCH  | /api/v1/assets/{assetId}/status | Bearer/Cookie JWT + owner/admin | Update status                |
+| DELETE | /api/v1/assets/{assetId}    | Bearer/Cookie JWT + owner/admin | Soft delete asset             |
+
+## Upload auth
+
+The upload endpoint is machine-to-machine and requires:
+
+- x-api-key header
+- API key linked to an active tenant
+- Tenant plan with remaining image quota
+
+## Multipart request contract
+
+Content-Type must be multipart/form-data with field named file.
+
+Optional fields:
+
+- folder: target folder path (preferred)
+- path: legacy folder field (still supported)
+- metadata: JSON string object, stored under metadata.custom
+
+## Example: upload
+
+```bash
+curl -X POST http://localhost:5000/api/v1/assets/upload \
+  -H "X-API-KEY: SHRY_API_KEY" \
+  -F "file=@./shoe-1.png" \
+  -F "folder=products/shoes" \
+  -F "metadata={\"sku\":\"shoe-101\",\"source\":\"catalog-sync\"}"
+```
+
+Expected behavior:
+
+- Response status 201
+- Asset stored with status processing
+- Upload usage counter incremented
+- Variant generation job enqueued
+
+## Example: list assets
+
+```bash
+curl "http://localhost:5000/api/v1/assets?page=1&limit=25" \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+## Storage and lifecycle
+
+- Files are stored in S3-compatible storage under tenant/folder/imageId
+- CDN URLs are returned in data.urls
+- Upload response also includes data.cdn for convenience
+- Worker later produces mobile/tablet/desktop variants
+- Status transitions: processing -> ready or failed
+
+## Error matrix
+
+| Scenario                                 | Status |
+| ---------------------------------------- | ------ |
+| Missing API key                          | 401    |
+| API key expired or invalid               | 401    |
+| Non-multipart payload                    | 415    |
+| Missing file field                       | 400    |
+| File exceeds ASSET_MAX_UPLOAD_BYTES      | 413    |
+| Tenant inactive or missing               | 403    |
+| Plan image limit reached                 | 403    |
+| Queue enqueue failure after upload       | 500    |
+
+<Info>
+  Full upload and asset endpoint schemas are generated under API Asset in
+  /api-reference from swagger-asset.json.
+</Info>

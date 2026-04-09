@@ -1,0 +1,35 @@
+---
+title: Auth
+description: Developer-facing authentication flow and required headers
+---
+
+## What developers need
+
+Use Auth module to login and get access tokens before calling dashboard endpoints.
+
+## Core endpoints
+
+| Method | Endpoint | Purpose |
+| ------ | -------- | ------- |
+| POST | /api/v1/auth/login | Login with email/password |
+| GET | /api/v1/auth/me | Get current user profile |
+| POST | /api/v1/auth/refresh | Rotate access/refresh tokens |
+| POST | /api/v1/auth/logout | Logout current session |
+
+## Required headers
+
+- Dashboard endpoints: `Authorization: Bearer ACCESS_TOKEN`
+- Service-to-service upload endpoints: `x-api-key`
+
+## Quick login example
+
+```bash
+curl -X POST "$BASE_URL/api/v1/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"dev@example.com","password":"Password123!"}'
+```
+
+## Source of truth
+
+- OpenAPI split for this module: `openapi/modules/auth/swagger-auth.json`
+- API Reference group: `API Auth`

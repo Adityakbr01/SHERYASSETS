@@ -1,0 +1,49 @@
+---
+title: Quickstart
+description: Learn how to upload your first image in 5 minutes
+---
+
+This guide will walk you through authenticating against the SheryAssets API and uploading a file.
+
+## 1. Setup your Environment
+
+Set your API base URL and your `X-API-KEY` (found in your workspace dashboard).
+
+```bash
+BASE_URL="https://api.yourproduct.com"
+API_KEY="your_api_key_here"
+```
+
+## 2. Upload an image
+
+You can upload your assets by sending a `multipart/form-data` request containing the `file`.
+
+```bash
+curl -X POST "$BASE_URL/api/v1/assets/upload" \
+  -H "X-API-KEY: $API_KEY" \
+  -F "file=@./sample.png" \
+  -F "folder=products/shoes"
+```
+
+### Expected Response
+
+A successful upload responds with a **201** status code. The response contains the generated asset ID and the direct URL to your new image:
+
+```json
+{
+  "success": true,
+  "data": {
+    "assetId": "ast_xxxxxxxxxxx",
+    "url": "https://cdn.yourproduct.com/products/shoes/sample.png",
+    "sizeBytes": 2048,
+    "format": "png"
+  }
+}
+```
+
+## 3. Verify upload
+
+Congratulations! Your file is now securely hosted and distributed globally. You can now use the `url` from the response in your web applications for immediate, optimized image delivery.
+
+Head over to the [API Reference](/openapi/modules/api-reference) to explore the various endpoints.
+

@@ -1,0 +1,33 @@
+---
+title: Usage Module
+description: Usage tracking and analytics module guide
+---
+
+## Scope
+
+Public usage capabilities:
+
+- track upload
+- track delivery
+- monthly analytics
+- history and totals
+
+## Source of truth
+
+- OpenAPI split: `openapi/modules/usage/swagger-usage.json`
+
+## Endpoint checklist
+
+| Endpoint | Auth | Notes |
+| -------- | ---- | ----- |
+| POST /api/v1/usage/track/upload | x-api-key | upload counters |
+| POST /api/v1/usage/track/delivery | x-api-key | delivery counters |
+| GET /api/v1/usage/monthly | Bearer/Cookie | month summary |
+| GET /api/v1/usage/history | Bearer/Cookie | trend rows |
+| GET /api/v1/usage/totals | Bearer/Cookie | all-time totals |
+
+## Update checklist
+
+1. Keep month format and limit validations in docs.
+2. Keep cache hit/miss examples aligned.
+3. Re-run docs generation after any usage schema change.

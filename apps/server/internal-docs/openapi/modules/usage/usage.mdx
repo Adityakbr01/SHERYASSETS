@@ -1,0 +1,101 @@
+---
+title: Usage
+description: Track upload and delivery usage plus tenant analytics APIs
+---
+
+## What this module does
+
+Usage endpoints power billing, limits, and dashboard analytics.
+
+They are split into two categories:
+
+- Machine-to-machine tracking via API key
+- Dashboard analytics via JWT (owner/admin)
+
+## Endpoint map
+
+| Method | Endpoint                     | Auth               | Purpose                                      |
+| ------ | ---------------------------- | ------------------ | -------------------------------------------- |
+| POST   | /api/v1/usage/track/upload   | x-api-key          | Increment upload count and upload bandwidth  |
+| POST   | /api/v1/usage/track/delivery | x-api-key          | Track delivery bandwidth, cache, transforms  |
+| GET    | /api/v1/usage/monthly        | Bearer/Cookie JWT  | Monthly usage, limits, and utilization       |
+| GET    | /api/v1/usage/history        | Bearer/Cookie JWT  | Rolling monthly records for trend graphs     |
+| GET    | /api/v1/usage/totals         | Bearer/Cookie JWT  | Aggregated totals across all tracked months  |
+
+## Auth and tenant context
+
+Tracking endpoints:
+
+- Require x-api-key
+- Tenant is resolved from the API key
+
+Dashboard endpoints:
+
+- Require access token
+- Require owner/admin role in resolved tenant
+- Tenant context comes from activeTenantId in JWT or X-TENANT-ID header
+
+## Example: track upload usage
+
+```bash
+curl -X POST http://localhost:5000/api/v1/usage/track/upload \
+  -H "X-API-KEY: SHRY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sizeBytes": 2048,
+    "month": "2026-04"
+  }'
+```
+
+Expected: 200 and updated monthly usage row.
+
+## Example: track delivery usage
+
+```bash
+curl -X POST http://localhost:5000/api/v1/usage/track/delivery \
+  -H "X-API-KEY: SHRY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "bandwidthBytes": 4096,
+    "cacheStatus": "hit",
+    "transformationCount": 2,
+    "month": "2026-04"
+  }'
+```
+
+## Example: monthly dashboard summary
+
+```bash
+curl "http://localhost:5000/api/v1/usage/monthly?month=2026-04" \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+Expected shape:
+
+- month
+- usage (uploadCount, transformationCount, bandwidthBytes, bandwidthGb)
+- limits (maxImages, maxTransformations, maxBandwidthGb)
+- utilization (percent values)
+
+## Validation rules
+
+- month must be in YYYY-MM format
+- sizeBytes must be > 0
+- bandwidthBytes cannot be negative
+- transformationCount cannot be negative
+- history limit must be between 1 and 24
+
+## Common errors
+
+| Scenario                              | Status |
+| ------------------------------------- | ------ |
+| Missing x-api-key on tracking route   | 401    |
+| Invalid month format                  | 400    |
+| Missing tenant context                | 400    |
+| Dashboard token missing/expired       | 401    |
+| Member role hitting dashboard route   | 403    |
+
+<Info>
+  Use the API Reference sidebar group API Usage for generated request and response
+  schemas backed by swagger-usage.json.
+</Info>

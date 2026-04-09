@@ -10,14 +10,8 @@ import { corsMiddleware } from './cors.middleware'
 import { errorHandler } from './errorMiddleware'
 import globalLimiter from './globalLimiter.middleware'
 import { notFoundMiddleware } from './notFount.middleware'
-import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "@/configs/swagger";
 
 export const applyMiddlewares = (app: Application) => {
-
-  // 📝 SWAGGER
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
   // 🔐 SECURITY (Helmet)
   app.use(
     helmet({

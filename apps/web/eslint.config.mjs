@@ -11,7 +11,7 @@ import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
   {
-    ignores: ['.next', 'node_modules', 'dist'],
+    ignores: ['.next', 'node_modules', 'dist',"build","docs","coverage"],
   },
 
   // Base JS
@@ -78,7 +78,8 @@ export default defineConfig([
       ],
       'no-undef': 'off',
       'no-unreachable': 'error',
-      'no-duplicate-imports': 'error',
+      'no-duplicate-imports': 'off',
+      'import/no-duplicates': 'error',
 
       // ========================
       // 🔥 TYPESCRIPT

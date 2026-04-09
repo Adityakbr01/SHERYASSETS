@@ -1,0 +1,30 @@
+---
+title: Upload Module
+description: Upload and asset retrieval module guide for external developers
+---
+
+## Scope (developer-facing)
+
+Public upload workflows:
+
+- upload via API key
+- list assets
+- fetch asset details
+
+## Source of truth
+
+- OpenAPI split: `openapi/modules/asset/swagger-asset.json`
+
+## Endpoint checklist
+
+| Endpoint | Auth | Notes |
+| -------- | ---- | ----- |
+| POST /api/v1/assets/upload | x-api-key | multipart upload route used by SDK/integration |
+| GET /api/v1/assets | Bearer/Cookie | list tenant assets for dashboards |
+| GET /api/v1/assets/{assetId} | Bearer/Cookie | fetch one asset detail |
+
+## Update checklist
+
+1. Keep multipart fields documented.
+2. Keep status lifecycle examples accurate.
+3. Keep plan-limit errors documented when changed.

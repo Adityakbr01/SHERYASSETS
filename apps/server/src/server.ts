@@ -24,7 +24,6 @@ const startServer = async () => {
 
     const shutdown = async (signal: string) => {
       logger.warn(`⚠️ ${signal} received. Shutting down...`)
-
       server.close(async () => {
         try {
           await AuthEmailWorker.close()

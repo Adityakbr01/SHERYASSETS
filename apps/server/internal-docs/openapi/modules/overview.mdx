@@ -1,0 +1,31 @@
+---
+title: Internal Modules Overview
+description: Module-first map for private/internal documentation and OpenAPI splits
+---
+
+## Internal module map
+
+| Module | Module page | OpenAPI split |
+| ------ | ----------- | ------------- |
+| Auth | openapi/modules/auth/authentication | openapi/modules/auth/swagger-auth.json |
+| Billing | openapi/modules/billing/billing | openapi/modules/billing/swagger-billing.json |
+| Tenant | openapi/modules/tenant/tenant | openapi/modules/tenant/swagger-tenant.json |
+| Membership | openapi/modules/membership/membership | openapi/modules/membership/swagger-membership.json |
+| ApiKey | openapi/modules/apikey/apikeys | openapi/modules/apikey/swagger-apikey.json |
+| Asset | openapi/modules/assets/upload | openapi/modules/assets/swagger-asset.json |
+| Usage | openapi/modules/usage/usage | openapi/modules/usage/swagger-usage.json |
+| Plan | openapi/modules/plan/plans | openapi/modules/plan/swagger-plan.json |
+
+## Internal docs workflow
+
+1. Update route/controller/validation in module source.
+2. Update module OpenAPI registration in `openapi/modules/<module>`.
+3. Run bun run docs:generate:internal.
+4. Run bun run test:docs.
+5. Preview internal docs and API Reference.
+
+## Separation contract
+
+- Internal docs config is internal-docs/docs.json.
+- Internal specs are generated only under internal-docs/.
+- Public docs config/specs remain fully independent under docs/.

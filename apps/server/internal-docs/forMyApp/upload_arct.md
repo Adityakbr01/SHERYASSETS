@@ -4,7 +4,7 @@
 
 Build a scalable asset delivery platform with:
 
-* ⚡ <100ms delivery (via CDN cache)
+* ⚡ &lt;100ms delivery (via CDN cache)
 * 📦 Image upload + storage
 * 🧠 Transformations (resize, format, quality)
 * 💰 Usage-based billing

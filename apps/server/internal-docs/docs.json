@@ -2,6 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "SheryAssets",
+  "public": false,
   "colors": {
     "primary": "#F59E0B",
     "light": "#F59E0B",
@@ -9,7 +10,6 @@
   },
   "favicon": "/favicon.png",
   "api": {
-    "openapi": "swagger.json",
     "playground": {
       "display": "interactive"
     },
@@ -22,76 +22,92 @@
       {
         "group": "Getting Started",
         "pages": [
-          "introduction",
-          "getting-started",
-          "quickstart"
+          "openapi/modules/introduction",
+          "openapi/modules/getting-started",
+          "openapi/modules/quickstart"
         ]
       },
       {
-        "group": "Guides",
+        "group": "Modules",
         "pages": [
-          "authentication",
-          "tenant",
-          "membership",
-          "apikeys",
-          "plans",
-          "billing",
-          "upload",
-          "pricing-and-roadmap"
+          "openapi/modules/overview",
+          "openapi/modules/auth/authentication",
+          "openapi/modules/tenant/tenant",
+          "openapi/modules/membership/membership",
+          "openapi/modules/apikey/apikeys",
+          "openapi/modules/plan/plans",
+          "openapi/modules/billing/billing",
+          "openapi/modules/assets/upload",
+          "openapi/modules/usage/usage"
         ]
       },
       {
         "group": "Developer Help",
         "pages": [
-          "developer-onboarding-checklist",
-          "api-recipes",
-          "troubleshooting",
-          "search-index"
+          "openapi/modules/developer-onboarding-checklist",
+          "openapi/modules/api-recipes",
+          "openapi/modules/pricing-and-roadmap",
+          "openapi/modules/troubleshooting",
+          "openapi/modules/search-index"
         ]
       },
       {
         "group": "API Reference",
-        "root": "api-reference",
+        "root": "openapi/modules/api-reference",
         "pages": [
           {
             "group": "API Auth",
             "openapi": {
-              "source": "swagger-auth.json",
+              "source": "openapi/modules/auth/swagger-auth.json",
               "directory": "api/auth"
             }
           },
           {
             "group": "API Billing",
             "openapi": {
-              "source": "swagger-billing.json",
+              "source": "openapi/modules/billing/swagger-billing.json",
               "directory": "api/billing"
             }
           },
           {
             "group": "API Tenant",
             "openapi": {
-              "source": "swagger-tenant.json",
+              "source": "openapi/modules/tenant/swagger-tenant.json",
               "directory": "api/tenant"
             }
           },
           {
             "group": "API Membership",
             "openapi": {
-              "source": "swagger-membership.json",
+              "source": "openapi/modules/membership/swagger-membership.json",
               "directory": "api/membership"
             }
           },
           {
             "group": "API ApiKey",
             "openapi": {
-              "source": "swagger-apikey.json",
+              "source": "openapi/modules/apikey/swagger-apikey.json",
               "directory": "api/apikey"
+            }
+          },
+          {
+            "group": "API Asset",
+            "openapi": {
+              "source": "openapi/modules/assets/swagger-asset.json",
+              "directory": "api/asset"
+            }
+          },
+          {
+            "group": "API Usage",
+            "openapi": {
+              "source": "openapi/modules/usage/swagger-usage.json",
+              "directory": "api/usage"
             }
           },
           {
             "group": "API Plan",
             "openapi": {
-              "source": "swagger-plan.json",
+              "source": "openapi/modules/plan/swagger-plan.json",
               "directory": "api/plan"
             }
           }

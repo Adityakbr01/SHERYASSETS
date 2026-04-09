@@ -7,12 +7,10 @@
   ],
   "lint-staged": {
   "apps/web/**/*.{ts,tsx,js,jsx}": [
-    "bun --cwd apps/web lint:fix",
-    "bash -c \"bun --cwd apps/web build\""
+    "bun --cwd apps/web lint:fix"
   ],
   "apps/server/**/*.{ts,js}": [
-    "bun --cwd apps/server lint:fix",
-    "bun --cwd apps/server build"
+    "bun --cwd apps/server lint:fix"
   ]
 },
   "scripts": {

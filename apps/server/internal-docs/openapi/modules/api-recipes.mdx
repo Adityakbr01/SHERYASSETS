@@ -1,0 +1,246 @@
+---
+title: API Recipes by Role
+description: Easy copy-paste API commands for owner, admin, and member
+---
+
+## How to use
+
+1. Set variables
+2. Replace placeholder values
+3. Copy and run commands
+4. If error happens, open /troubleshooting
+
+```bash
+BASE_URL=http://localhost:5000
+ACCESS_TOKEN=replace_me
+ADMIN_TOKEN=replace_me
+TENANT_ID=replace_me
+PLAN_ID=replace_me
+KEY_ID=replace_me
+API_KEY=replace_me
+```
+
+Replace these values before you run commands.
+
+```bash
+# optional helper
+auth_header="Authorization: Bearer $ACCESS_TOKEN"
+tenant_header="X-TENANT-ID: $TENANT_ID"
+```
+
+You can use helper variables or direct headers. Both are fine.
+
+## Owner flow recipes
+
+### 1. Switch tenant
+
+```bash
+curl -X POST BASE_URL/api/v1/auth/switch-tenant \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"tenantId":"TENANT_ID"}'
+```
+
+Expected: `200` and `data.accessToken` in response.
+
+If you get `403`, check if user belongs to this tenant.
+
+### 2. Invite a member
+
+```bash
+curl -X POST BASE_URL/api/v1/memberships/invite \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "X-TENANT-ID: TENANT_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"teammate@example.com","role":"member"}'
+```
+
+Expected: `200` with message `Invitation email sent successfully`.
+
+If you get `429`, wait and try again.
+
+### 3. Create API key
+
+```bash
+curl -X POST BASE_URL/api/v1/api-keys \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "X-TENANT-ID: TENANT_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Production Upload Key"}'
+```
+
+Expected: `201` and one-time `data.apiKey` value.
+
+Save this key now. You cannot see the raw key again.
+
+### 4. Start billing subscription
+
+```bash
+curl -X POST BASE_URL/api/v1/billing/subscribe/PLAN_ID \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "X-TENANT-ID: TENANT_ID" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+Expected: `200` with `data.orderId` and `data.subscriptionId`.
+
+If you get `400`, check if plan is paid and tenant has no active subscription.
+
+## Admin flow recipes
+
+### 1. List tenant members
+
+```bash
+curl BASE_URL/api/v1/memberships/tenant-members \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "X-TENANT-ID: TENANT_ID"
+```
+
+Expected: `200` with array data.
+
+### 2. Revoke API key
+
+```bash
+curl -X PATCH BASE_URL/api/v1/api-keys/KEY_ID/revoke \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "X-TENANT-ID: TENANT_ID"
+```
+
+Expected: `200` and `data.status = revoked`.
+
+If you get `404`, key may be wrong or already revoked.
+
+### 3. Verify billing payment
+
+```bash
+curl -X POST BASE_URL/api/v1/billing/subscribe/verify \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "X-TENANT-ID: TENANT_ID" \
+  -H "Content-Type: application/json" \
+  -d '{"orderId":"ORDER_ID","paymentId":"PAYMENT_ID","signature":"SIGNATURE"}'
+```
+
+Expected: `200` and active subscription details.
+
+If you get `400`, check signature, orderId, and paymentId.
+
+## Member flow recipes
+
+### 1. View memberships
+
+```bash
+curl BASE_URL/api/v1/memberships/mine \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+Expected: `200` and membership list.
+
+### 2. Accept invite
+
+```bash
+curl -X POST BASE_URL/api/v1/memberships/accept-invite \
+  -H "Authorization: Bearer ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"token":"INVITE_TOKEN"}'
+```
+
+Expected: `200` and new membership record.
+
+If you get `403`, invite token email may not match logged-in email.
+
+### 3. Get tenant by slug
+
+```bash
+curl BASE_URL/api/v1/tenants/slug/TENANT_SLUG \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+Expected: `200` and tenant data.
+
+## System admin recipes
+
+### Create plan
+
+```bash
+curl -X POST BASE_URL/api/v1/plans \
+  -H "Authorization: Bearer ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "custom_plan",
+    "name": "Custom Plan",
+    "priceMonthly": 50,
+    "limits": {
+      "maxImages": 2000,
+      "maxBandwidthGb": 10,
+      "maxApiKeys": 5,
+      "maxTransformations": 10000
+    },
+    "features": {
+      "priorityProcessing": true,
+      "customDomain": false,
+      "eagerVariants": false
+    }
+  }'
+```
+
+Expected: `200` and created plan data.
+
+If you get `403`, token is not an admin system token.
+
+## Machine integration recipes
+
+### 1. Upload asset with API key
+
+```bash
+curl -X POST BASE_URL/api/v1/assets/upload \
+  -H "X-API-KEY: API_KEY" \
+  -F "file=@./sample.png" \
+  -F "folder=products/shoes"
+```
+
+Expected: `201` and uploaded asset object with `status=processing`.
+
+### 2. Track upload usage manually
+
+```bash
+curl -X POST BASE_URL/api/v1/usage/track/upload \
+  -H "X-API-KEY: API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"sizeBytes":2048,"month":"2026-04"}'
+```
+
+Expected: `200` and usage row with incremented uploadCount.
+
+### 3. Track delivery usage manually
+
+```bash
+curl -X POST BASE_URL/api/v1/usage/track/delivery \
+  -H "X-API-KEY: API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"bandwidthBytes":4096,"cacheStatus":"hit","transformationCount":2,"month":"2026-04"}'
+```
+
+Expected: `200` and updated transformation/cache counters.
+
+### 4. Read usage totals from dashboard token
+
+```bash
+curl BASE_URL/api/v1/usage/totals \
+  -H "Authorization: Bearer ACCESS_TOKEN"
+```
+
+Expected: `200` and aggregate totals including `bandwidthGb`.
+
+## Most common quick fixes
+
+- `401`: token missing/expired -> login again or refresh token
+- `403`: role not allowed -> use owner/admin/admin-system token
+- `404`: wrong tenant/plan/key/order id -> fetch latest ids first
+- `429`: cooldown/rate-limit -> wait and retry
+
+## If recipe output is unexpected
+
+- Check /troubleshooting for error table
+- Check /search-index to find right page fast
+- Check /api-reference for exact request and response format

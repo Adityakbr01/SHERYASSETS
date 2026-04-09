@@ -38,6 +38,7 @@ const envSchema = z.object({
 
   SALT_ROUNDS: z.coerce.number().default(10),
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
+  INTERNAL_DOCS_ACCESS_TOKEN: z.string().default(''),
   RESEND_API_KEY: z.string().default(''),
   REDIS_URL: z.string().default('redis://localhost:6379'),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
@@ -55,8 +56,10 @@ const envSchema = z.object({
   AWS_S3_FORCE_PATH_STYLE: z.coerce.boolean().default(false),
 
   // ASSET UPLOAD CONFIGURATION
-  ASSET_MAX_UPLOAD_BYTES: z.coerce.number().positive().default(25 * 1024 * 1024), // 25MB
-
+  ASSET_MAX_UPLOAD_BYTES: z.coerce
+    .number()
+    .positive()
+    .default(25 * 1024 * 1024), // 25MB
 })
 
 // 🔍 Validate
